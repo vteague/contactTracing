@@ -1,10 +1,7 @@
-# contactTracing
-ForkingTraceTogether
+# Why, and how, Australia needs to change TraceTogether before we use it here
 
-Why, and how, Australia needs to change TraceTogether before we use it here
-
-Dr Vanessa Teague
-Thinking Cybersecurity Pty Ltd
+Vanessa Teague
+CEO, Thinking Cybersecurity Pty Ltd
 
 The Australian Financial Review [reported recently](https://www.afr.com/politics/federal/singapore-coronavirus-app-on-approval-fast-track-20200324-p54dhl) that the Australian government is seriously considering adapting Singapore’s TraceTogether contact-tracing app for use in Aus.  It’s a good idea to benefit from Singapore's (probably very good) software engineering and development efforts, especially since they're intending to open the source code soon, but we need to make some changes to ensure that its privacy guarantees match Australia's political setting.
 
@@ -66,12 +63,12 @@ Of course, all this assumes that the promised open-source version of the app app
 
 I have left out a lot of details here.  Any system needs a way of ensuring that a person has genuinely had a positive diagnosis from a real doctor, before the contact-tracing is initiated.  We would need something like that too – perhaps it should be doctors who upload a person's information, or who sign a digital permission slip that lets the person post their numbers.  Even with manual contact tracing, it is possible for someone to lie about their contacts by either including people they haven't been near, or excluding people they have.  This system cannot prevent that – it is still possible for a person to post misleading information (such as numbers they received rather than numbers they sent) or to refuse to share information.  Similar threats exist for TraceTogether too.  It seems hard to design a system that enforces accuracy without non-consensual surveillance.  
 
-# Summary - where to from here?
+## Summary - where to from here?
 
-This is not perfect, but overall I believe it represents a good gain in potential-infection tracing at a lesser cost to privacy than the alternatives.
+This is not perfect, but I believe it represents a good gain in potential-infection tracing at a lesser cost to privacy than the alternatives.
 I'll be posting some more details soon, and I hope to link to the relevant parts of TraceTogether's code when it is available.  
 
-Any real work or change needs a commitment from the Australian government to design an app that helps Australians identify potential infection risks without requiring centralised government access to location or contact information.
+We need a commitment from the Australian government to design an app that helps Australians identify potential infection risks without requiring centralised government access to location or contact information.
 
 ### Acknowledgements and collaborations
 
