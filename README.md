@@ -75,7 +75,7 @@ We need a commitment from the Australian government to design an app that helps 
 
 ### Acknowledgements and collaborations
 
-Many thanks to Peter Eckersley, Yehuda Lindell, Ben Rubinstein, and the Data61 team for helpful background or comments on earlier drafts.  Any errors are, of course, mine. 
+Many thanks to Peter Eckersley, Yehuda Lindell, Ben Rubinstein, and the Data61/Macquarie University team for helpful background or comments on earlier drafts.  Any errors are, of course, mine. 
 
 Comments, edits and suggestions are welcome - the easiest way to contact me is on Twitter @VTeagueAus
 
