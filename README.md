@@ -1,6 +1,7 @@
 # Why, and how, Australia needs to change TraceTogether before we use it here
 
 Vanessa Teague
+
 CEO, Thinking Cybersecurity Pty Ltd
 
 The Australian Financial Review [reported recently](https://www.afr.com/politics/federal/singapore-coronavirus-app-on-approval-fast-track-20200324-p54dhl) that the Australian government is seriously considering adapting Singapore’s TraceTogether contact-tracing app for use in Aus.  It’s a good idea to benefit from Singapore's (probably very good) software engineering and development efforts, especially since they're intending to open the source code soon, but we need to make some changes to ensure that its privacy guarantees match Australia's political setting.
@@ -19,16 +20,18 @@ Here’s how.
 
 ## The goal
 
-There are some open-source proposals for a kind of app that reverses the TraceTogether information flow.  (See [here](https://www.linkedin.com/pulse/controlling-covid-through-cellphones-ari-trachtenberg) for a good general explanation and [here](https://github.com/degregat/ppdt) for a detailed example.)  Rather than broadcasting an ID encrypted with the key of the authorities, everyone broadcasts a random-looking number that changes frequently (say every hour or every 15 mins).  Each person's phone remembers the numbers they've seen and sent via Bluetooth. If you get infected, you effectively post on a public list all the random-looking numbers you have broadcast in the past fortnight (or whatever date range is medically justified). Every day, everyone scans the public list for any random numbers they've seen. These do exactly the same effective contact-tracing as TraceTogether, without the centralised point that learns everyone's contacts.  You publish a list of random-looking numbers that tell others they were in contact with an infected person, but don’t reveal anything about where you were located.  Crucially, they also don’t reveal to any third party which other people you were close to – each affected person can tell, but nobody else.
+There are some open-source proposals for a kind of app that reverses the TraceTogether information flow.  (See [here](https://www.linkedin.com/pulse/controlling-covid-through-cellphones-ari-trachtenberg) for a good general explanation and [here](https://github.com/degregat/ppdt) for a detailed example.)  Rather than broadcasting an ID encrypted with the key of the authorities, everyone broadcasts a random-looking number that changes frequently (say every hour or every 15 mins).  Each person's phone remembers the numbers they've seen and sent via Bluetooth. If you get infected, you effectively post on a public list all the random-looking numbers you have broadcast in the past fortnight (or whatever date range is medically justified). Every day, everyone scans the public list for any random numbers they've seen. If there's a match, they know they may have been exposed to the virus.
+
+This achieves exactly the same effective contact-tracing as TraceTogether, without the centralised point that learns everyone's contacts.  Each infected person publishes a list of random-looking numbers that serve as notification for others they were in contact with, but don’t reveal anything about where the person was.  Crucially, no third party learns which people were in contact – each affected person can tell, but nobody else.
 
 ## Small steps to achieve the goal
 
-So let’s take a step-by-step edit of TraceTogether to adapt it to this style of protocol.
+So let’s take a step-by-step edit of TraceTogether to adapt it towards this goal.
 
 First think about removing dependence on government to be a critical part of the reliability of the system. Never mind about privacy for now - just think about shifting the notification responsibility away from a central authority into the hands of ordinary app users. This leads us to:
 
 ### TraceTogether Tweak 1 – removing dependence on government for reliability
-=============================================================================
+
 
 Suppose that as well as remembering every number you have _received_ you also remember every number you have _sent_. When you are infected, you post the complete list of messages you sent, to some completely public website/repository. Everyone's app now reads everything that has been posted on the public list and compares it to their own list of every number they have received.  If there's a match, they know they have been within Bluetooth range of an infected person.
 
@@ -43,7 +46,7 @@ There is still some reliance on someone to keep a public website of numbers runn
 However, it has two main shortcomings: (1) it would post a lot of numbers per person, which is wasteful. (2) the IDs are still encrypted with the public key of the authorities, even though we're not relying on them to use the decryption key, so the opportunity to use it as a method of surreptitious surveillance remains. This leads us to:
 
 ### TraceTogether Tweak 2 – removing dependence on government for privacy
-=============================================================================
+
 
 Rather than sending your ID encrypted with government’s key, you send a frequently-changing series of random-looking values not decryptable by the authorities. Nothing else changes.
 
