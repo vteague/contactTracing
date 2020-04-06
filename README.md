@@ -41,6 +41,8 @@ The other class of contact-tracing apps, those based on Bluetooth beacons, measu
 
 Type 1 reveals each infected person's physical contacts to the authorities, though it does a reasonable job of keeping your identity and infection status private from other users.  Type 2 tells government nothing (except that you have been infected) but probably makes it a little easier for individuals to infer one another's infection status - this depends on the details of the scheme.   
 
+There are some brilliant ideas for using sophisticated cryptography to get the best of both approaches, but nothing that's had enough review to be confident in yet. 
+
 ## Recommendations
 In the Australian context, I have severe reservations about the schemes that rely on a centralised (presumably government) entity.  It might crash under the load, thus neglecting to convey time-critical information.  It might leak sensitive information due to an accidental data breach, a deliberate cyber attack, or a naive effort to de-identify the data and post it online for sharing.  (If you think this last option is farfetched, you're not Australian - both the [Australian Federal](https://pursuit.unimelb.edu.au/articles/the-simple-process-of-re-identifying-patients-in-public-health-records) and [Victorian State](https://pursuit.unimelb.edu.au/articles/two-data-points-enough-to-spot-you-in-open-transport-records) governments have posted highly sensitive, easily-identifiable data online because they didn't realise how easily re-identifiable it was.)  Social contact information is [very easily re-identifiable.](https://arxiv.org/abs/1102.4374)
 
