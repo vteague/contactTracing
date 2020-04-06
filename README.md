@@ -58,7 +58,7 @@ This could be achieved by tweaking TraceTogether, as I suggested in my last blog
 In conclusion, a note of skepticism: although Singapore quickly implemented a highly accurate method of contact tracing, they recently decided to tighten their lockdown and close their schools anyway.  Their [PM said of locally infected people](https://www.straitstimes.com/singapore/health/most-workplaces-to-close-schools-will-move-to-full-home-based-learning-from-next), ``despite our good contact tracing, for nearly half of these cases, we do not know where or from whom the person caught the virus.'' 
 
 When we think about whether to adopt particular system, we should  question
-both how effective it will be and whether equally-good disease control could have been achieved without the data grab.
+both how effective it will be and whether equally-good disease control could have been achieved with a more privacy-oriented approach.
 
 ### Acknowledgements and collaborations
 
