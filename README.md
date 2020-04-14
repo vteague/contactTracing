@@ -60,6 +60,9 @@ In conclusion, a note of skepticism: although Singapore quickly implemented a hi
 When we think about whether to adopt particular system, we should  question
 both how effective it will be and whether equally-good disease control could have been achieved with a more privacy-oriented approach.
 
+
+## Note added 14 Apr: [TraceTogether's code] (https://github.com/opentrace-community) is now open! Thankyou.
+
 ### Acknowledgements and collaborations
 
 Nothing in this blog post is original, but has been gleaned from discussions and readings from many sources.

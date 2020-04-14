@@ -75,6 +75,8 @@ I'll be posting some more details soon, and I hope to link to the relevant parts
 
 We need a commitment from the Australian government to design an app that helps Australians identify potential infection risks without requiring centralised government access to location or contact information.
 
+## Note added 14 Apr: [TraceTogether's code] (https://github.com/opentrace-community) is now open! Thankyou.
+
 ### Acknowledgements and collaborations
 
 Many thanks to Peter Eckersley, Yehuda Lindell, Ben Rubinstein, and the Data61/Macquarie University team for helpful background or comments on earlier drafts.  Any errors are, of course, mine. 
