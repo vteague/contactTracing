@@ -61,7 +61,7 @@ When we think about whether to adopt particular system, we should  question
 both how effective it will be and whether equally-good disease control could have been achieved with a more privacy-oriented approach.
 
 
-## Note added 14 Apr: [TraceTogether's code] (https://github.com/opentrace-community) is now open! Thankyou.
+## Note added 14 Apr: [TraceTogether's code](https://github.com/opentrace-community) is now open! Thankyou.
 
 ### Acknowledgements and collaborations
 
