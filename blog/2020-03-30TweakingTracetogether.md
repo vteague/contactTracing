@@ -4,6 +4,9 @@ Vanessa Teague
 
 CEO, Thinking Cybersecurity Pty Ltd
 
+### Note added 14 Apr: [TraceTogether's code](https://github.com/opentrace-community) is now open! Thankyou.
+### Note added 19 Apr: This technical description of TraceTogether is slightly incorrect: each person's ID is encrypted, not with the _public key_ of the Singaporean authorities, but with a _secret key_ known only to the Singaporean authorities.  This doesn't change the conclusions of this blog post, but does have a host of important implications described in my third blog post (TBA).
+
 The Australian Financial Review [reported recently](https://www.afr.com/politics/federal/singapore-coronavirus-app-on-approval-fast-track-20200324-p54dhl) that the Australian government is seriously considering adapting Singapore’s TraceTogether contact-tracing app for use in Aus.  It’s a good idea to benefit from Singapore's (probably very good) software engineering and development efforts, especially since they're intending to open the source code soon, but we need to make some changes to ensure that its privacy guarantees match Australia's political setting.
 
 Some apps, like Israel's [Hamagen](https://github.com/MohGovIL/hamagen-react-native), produce a public list of the times and locations where infected people have been. This automates the low-tech idea of publishing a map of possible infection locations (with times) and allowing everyone to take responsibility for checking whether they were there.  Location information for infected people is revealed, perhaps in a not-explicitly-identified form.  
@@ -75,7 +78,7 @@ I'll be posting some more details soon, and I hope to link to the relevant parts
 
 We need a commitment from the Australian government to design an app that helps Australians identify potential infection risks without requiring centralised government access to location or contact information.
 
-## Note added 14 Apr: [TraceTogether's code](https://github.com/opentrace-community) is now open! Thankyou.
+
 
 ### Acknowledgements and collaborations
 

@@ -66,7 +66,7 @@ both how effective it will be and whether equally-good disease control could hav
 ### Acknowledgements and collaborations
 
 Nothing in this blog post is original, but has been gleaned from discussions and readings from many sources.
-Thanks to Peter Eckersley, Kobi Leins, David Watts, the Macquarie/Melbourne/Data61 team (Hassan Asghar, Farhad Farokhi, Dali Kaafar, Ben Rubinstein),  the covid-watch/coepi team (especially James Petrie), the MIT/Boston University team (especially Ran Canetti, Yael Tauman Kalai, Ron Rivest, Elaine Shi, Ari Trachtenberg, Mayank Varia and John Wilkinson) and the DP^3T team (especially Kenny Paterson).  Not all of them agree with the opinions expressed here.
+Thanks to Peter Eckersley, Kobi Leins, David Watts, the Macquarie/Melbourne/Data61 team (Hassan Asghar, Farhad Farokhi, Dali Kaafar, Ben Rubinstein),  the covid-watch/coepi team (especially James Petrie), the MIT/Boston University team (especially Ran Canetti, Yael Tauman Kalai, Ron Rivest, Emily Shen, Ari Trachtenberg, Mayank Varia and John Wilkinson) and the DP^3T team (especially Kenny Paterson).  Not all of them agree with the opinions expressed here.
 Any errors are, of course, mine. 
 
 Comments, edits and suggestions are welcome - the easiest way to contact me is on Twitter @VTeagueAus
