@@ -4,6 +4,8 @@ Vanessa Teague
 
 CEO, Thinking Cybersecurity Pty Ltd
 
+March 30th, 2020.
+
 ### Note added 14 Apr: [TraceTogether's code](https://github.com/opentrace-community) is now open! Thankyou.
 ### Note added 19 Apr: This technical description of TraceTogether is slightly incorrect: each person's ID is encrypted, not with the _public key_ of the Singaporean authorities, but with a _secret key_ known only to the Singaporean authorities.  This doesn't change the conclusions of this blog post, but does have a host of important implications described in my third blog post (TBA).
 
