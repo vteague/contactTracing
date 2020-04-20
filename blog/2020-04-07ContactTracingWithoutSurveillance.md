@@ -8,7 +8,7 @@ April 7th, 2020.
 
 ## Note added 14 Apr: [TraceTogether's code](https://github.com/opentrace-community) is now open! Thankyou.
 
-At the end of [last week's blog](blog/2020-03-30TweakingTracetogether.md) I expressed two hopes
+At the end of [last week's blog](2020-03-30TweakingTracetogether.md) I expressed two hopes
 - that Singapore's TraceTogether would be open-sourced soon,
 - that the Australian government would commit to ``an app that helps Australians identify potential infection risks without requiring centralised government access to location or contact information.''
 
