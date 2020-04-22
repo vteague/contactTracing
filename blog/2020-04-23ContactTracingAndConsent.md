@@ -86,7 +86,7 @@ Decentralised protocols could also suffer from cryptographic problems that allow
 
 ## Who runs the server?
 
-TraceTogether's open source implementation trusts all of this information to the Google Firebase cloud, thus giving Google constant visibility of everyone's encrypted IDs, immediate knowledge of the contacts of each infected person, and the job of notifying those exposed.  Firebase's [privacy policy](https://firebase.google.com/support/privacy/) makes it clear that Firebase employees can access personal data.  The obvious alternative, for Australia, would be to run that server as a government IT service.  So I see two options:
+TraceTogether's open source implementation trusts all of this information to the Google Firebase cloud, thus giving Google constant visibility of everyone's IDs, immediate knowledge of the contacts of each infected person, and the job of notifying those exposed.  Firebase's [privacy policy](https://firebase.google.com/support/privacy/) makes it clear that Firebase employees can access personal data.  The obvious alternative, for Australia, would be to run that server as a government IT service.  So I see two options:
 1. we assume that Google (or some other corporate partner) won't abuse its detailed personal information about us, our contacts and our illnesses to make an extra buck, or
 2. we assume that the commonwealth government won't mess it up, crash the server, leak the information, or post it all on the web in not-really-de-identified form.
 
