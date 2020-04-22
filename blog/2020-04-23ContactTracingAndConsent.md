@@ -96,7 +96,7 @@ Both assumptions are squarely contradicted by past behaviour.
 
 Consenting to install it is not the same as consenting to run it constantly, which in turn is not the same as consenting to have your running of it constantly monitored.  Consent to upload also doesn't necessarily mean consent to upload every encounter.  These different consent options need to be clearly separated when presented to users.  
 
-In its TraceTogether form, I would be happy to run it on the train but refuse to run it in my home.  I need to see the details of Australia's version before I decide.
+In its TraceTogether form, I would be happy to run it on the train but refuse to run it in my home or office.  I need to see the details of Australia's version before I decide.
 
 Informed consent requires telling us what we're consenting to.  Open source code is a minimal requirement.
 
