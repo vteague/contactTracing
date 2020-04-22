@@ -38,17 +38,23 @@ encrypted IDs from a central server.
 
 TraceTogether downloads encrypted IDs daily, in a process that looks a little like this picture from the similarly-designed European ROBERT project (except ROBERT downloads only at registration):
 
-![Receiving encrypted IDs](blog/RobertPseudonymGen.png "Source: ROBERT project, https://github.com/ROBERT-proximity-tracing/documents/issues/2, last accessed 22 Apr 2020.")
+![Receiving encrypted IDs](https://github.com/vteague/contactTracing/blob/master/blog/RobertPseudonymGen.png "Source: ROBERT project, https://github.com/ROBERT-proximity-tracing/documents/issues/2, last accessed 22 Apr 2020.")
+
 This is different from contact tracing based on human memory.
+
 ## Some crucial differences from human memory
 
-1. *You cannot tell whether you are sending accurate IDs to your contacts.*  When you download your encrypted IDs, you are relying on them to be a truthful reflection of your ID. If a software bug, security problem, or network attack gives you someone else's encrypted IDs instead, you have no way to notice.
+### You cannot tell whether you are sending accurate IDs to your contacts.  
+
+When you download your encrypted IDs, you are relying on them to be a truthful reflection of your ID. If a software bug, security problem, or network attack gives you someone else's encrypted IDs instead, you have no way to notice.
 
 If you send IDs that are not yours, then when someone near you tests positive, you will not be notified.  For this reason, if the server is not adequately secured, an automated system has the potential to be a lot less accurate than human memory.
 
 Decentralised protocols do not suffer from this problem unless the attacker compromises the app on your phone.
 
-2. *You cannot tell whether you are receiving accurate IDs from your contacts.* You simply record each encrypted ID you receive, without knowing whether the list of encrypted IDs  that you will report to the authorities if you test positive truly matches the people you were near.
+### You cannot tell whether you are receiving accurate IDs from your contacts. 
+
+You simply record each encrypted ID you receive, without knowing whether the list of encrypted IDs  that you will report to the authorities if you test positive truly matches the people you were near.
 
 Decentralised protocols suffer from this problem partially, but the attacker has to compromise the app on the phone of each person whose identity he wishes to misrepresent.  In Tracetogether, the server or its Internet connection is a single point of failure.
 
@@ -56,11 +62,11 @@ This might also help non-contacts to infer your infection status, for example if
 
 In both types of protocols, an attacker can replay from one phone the beacons he has heard on a different phone, thus making people seem to have been exposed when they were not.
 
-3. *The server can tell whether you are running the app.*
+### The server can tell whether you are running the app.
 
 The TraceTogether whitepaper explains: "server-side TempID generation has a secondary benefit of allowing the health authority to understand adoption and usage levels of the app by logging the issuance of daily batches of TempIDs," which is a polite way of saying that the authorities can check each day whether you are running the app or not.  They cannot tell whether you are using it throughout the day, but it will be obvious if you don't turn it on at all.  So forget any plans you might have had to 'voluntarily' download it but disable or block it.  
 
-4. *If your list of encrypted contacts is leaked or forced, the IDs can be decrypted by whoever has the key, even if you do not test positive for Covid19*
+### If your list of encrypted contacts is leaked or forced, the IDs can be decrypted by whoever has the key, even if you do not test positive for Covid19
 
 For example, if you are a journalist who has decided to meet a source in person, and you are both running the app, then each phone will store the other person's encrypted ID.  Either phone, if seized by an authority with access to the decryption key or decryption server, reveals the other person's proximity.
 
@@ -68,7 +74,9 @@ If the decryption key leaks, then any attacker who accesses a phone's logs can r
 
 In a decentralised protocol, an attacker who wants to know whether two phones have been near each other must either control both phones or control one of them and hope the other person soon tests positive.  This seems to be an unavoidable consequence of doing contact tracing.
 
-5. *If the central server uses weak or broken encryption, the encrypted IDs could be easily recovered by third parties*  That includes both the ones you send while you walk around, and also the list of others' you keep on your phone.
+### If the central server uses weak or broken encryption, the encrypted IDs could be easily recovered by third parties.   
+
+That includes both the ones you send while you walk around, and also the list of others' you keep on your phone.
 
 Crucially, even if we get the source code for the Australian app, we cannot test that the encryption is being computed properly, since it is not being computed by the app.  Singapore's server code is openly available (good), but an Australian server could decide to downgrade its encryption at any time, even after deployment, and could do so for some people but not others.
 
@@ -108,4 +116,4 @@ Any errors are, of course, mine.
 Comments, edits and suggestions are welcome - the easiest way to contact me is on Twitter @VTeagueAus
 or by email at [my first name] at thinkingcybersecurity.com
 
-You are welcome to quote or reprint this article as long as you acknowledge the original source.  Permanent link: [https://github.com/vteague/contactTracing/blob/master/blog/2020-04-07ContactTracingAndConsent.md](https://github.com/vteague/contactTracing/blob/master/blog/2020-04-07ContactTracingAndConsent.md).
+You are welcome to quote or reprint this article as long as you acknowledge the original source.  Permanent link: [https://github.com/vteague/contactTracing/blob/master/blog/2020-04-23ContactTracingAndConsent.md](https://github.com/vteague/contactTracing/blob/master/blog/2020-04-23ContactTracingAndConsent.md).
