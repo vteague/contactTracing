@@ -82,7 +82,7 @@ Crucially, even if we get the source code for the Australian app, we cannot test
 
 This would make you easily tracked through shopping malls and other public (and private) spaces, even if you never test positive.
 
-Decentralised protocols could also suffer from cryptographic problems that allow easier tracking than we expected, for example if Apple/Google make errors in the cryptography behind their new API or accidentally leak a person's key.  So I hope that Apple/Google will be absolutely transparent about their implementations so that we can all examine and analyse them. 
+Decentralised protocols could also suffer from cryptographic problems that allow easier tracking than we expected, for example if Apple/Google make errors in the cryptography behind their new API or accidentally leak a person's key.  This would allow linking rather than immediate decryption, but might still allow a person to be easily identified.  So I hope that Apple/Google will be absolutely transparent about their implementations so that we can all examine and analyse them. 
 
 ## Who runs the server?
 
