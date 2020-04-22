@@ -60,7 +60,7 @@ Decentralised protocols suffer from this problem partially, but the attacker has
 
 This might also help non-contacts to infer your infection status, for example if they try to get their encrypted ID into the log of your phone, then wait to see whether they are notified of having been exposed.
 
-In both types of protocols, an attacker can replay from one phone the beacons he has heard on a different phone, thus making people seem to have been exposed when they were not.
+In both centralised and decentralised protocols, an attacker can replay from one phone the beacons he has heard on a different phone, thus making people seem to have been exposed when they were not.
 
 ### The server can tell whether you are running the app.
 
@@ -82,7 +82,7 @@ Crucially, even if we get the source code for the Australian app, we cannot test
 
 This would make you easily tracked through shopping malls and other public (and private) spaces, even if you never test positive.
 
-Decentralised protocols don't use encryption, so this problem does not arise.
+Decentralised protocols could also suffer from cryptographic problems that allow easier tracking than we expected, for example if Apple/Google make errors in the cryptography behind their new API or accidentally leak a person's key.  So I hope that Apple/Google will be absolutely transparent about their implementations so that we can all examine and analyse them. 
 
 ## Who runs the server?
 
