@@ -10,7 +10,7 @@ Imagine you have just tested positive for Covid19.  You talk with a health profe
 - There are people you were near, but don't want to, or don't need to, tell the authorities about.  These might be from political meetings or religious services, visits to a lawyer or doctor, or simply time with family and friends.  
 You have a moral responsibility to tell the affected people, but you may not need to tell the authorities as well.
 
-How important the option to spontaneously, undetectably and without prior planning, *not tell* the authorities about some of your contacts?
+How important is the option to spontaneously, undetectably and without prior planning, *not tell* the authorities about some of your contacts?
 
 This is the third in a series of blog posts.  In the [first](https://github.com/vteague/contactTracing/blob/master/blog/2020-03-30TweakingTracetogether.md) 
 and [second](https://github.com/vteague/contactTracing/blob/master/blog/2020-04-07ContactTracingWithoutSurveillance.md) I recommended that Australia adopt a decentralized contact tracing protocol such as 
