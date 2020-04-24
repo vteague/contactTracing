@@ -1,4 +1,4 @@
-­# Contact tracing and Consent: why using TraceTogether is different from using your memory
+# Contact tracing and Consent: why using TraceTogether is different from using your memory
 
 Vanessa Teague
 
@@ -84,6 +84,21 @@ This would make you easily tracked through shopping malls and other public (and 
 
 Decentralised protocols could also suffer from cryptographic problems that allow easier tracking than we expected, for example if Apple/Google make errors in the cryptography behind their new API or accidentally leak a person's key.  This would allow linking rather than immediate decryption, but might still allow a person to be easily identified.  So I hope that Apple/Google will be absolutely transparent about their implementations so that we can all examine and analyse them. 
 
+### If the central server cooperates with on-site Bluetooth tracking, your location can be easily tracked
+
+(This section added 24 Apr. Thanks to Eleanor McMurtry, [@noneuclideangrl](https://noneuclideangirl.net/), for pointing out that I'd omitted this important case.)
+
+Suppose for example that the central server happens to be a multinational advertising company like Amazon.  And suppose also that it would like to know exactly where you go when you visit a shopping centre.  Then it 
+arranges for Bluetooth-based receivers (such as [this infrastructure from Telstra](https://www.telstra.com.au/business-enterprise/products/internet-of-things/solutions/assets-equipment/track-and-monitor?gclid=EAIaIQobChMIxPervd3_6AIVVhaPCh0U9g2cEAAYASAAEgKjYfD_BwE&gclsrc=aw.ds)) to be placed around the shopping centre.
+Whenever you broadcast your encrypted ID on the Covid19 tracing app, Amazon can immediately decrypt your ID (it genererated it, remember) and hence, in cooperation with the shopping centre's owners, identify your different interactions throughout the centre.
+
+Obviously similar infrastructure could be established in public places in cooperation with government.  
+
+And if the central server leaks the decryption key (remembering that the key has to be available all the time) then that tracking opportunity is made available to anyone.
+
+Decentralised systems don't have this problem because there is no third-party service with the capacity to decrypt your beacons and recover your ID.  Individuals can be tracked in a similar way if their unique seed is extracted from their phone, but the attack would need to be performed separately on each phone.  Also, when a person tests positive their separate beacons for their infectious period can be linkable, depending on the details of the scheme.  So again there is a huge difference in the ease and scale of the attack in the centralised vs the decentralised solution.
+
+
 ## Who runs the server?
 
 TraceTogether's open source implementation trusts all of this information to the Google Firebase cloud, thus giving Google constant visibility of everyone's IDs, immediate knowledge of the contacts of each infected person, and the job of notifying those exposed.  Firebase's [privacy policy](https://firebase.google.com/support/privacy/) makes it clear that Firebase employees can access personal data.  The obvious alternative, for Australia, would be to run that server as a government IT service.  So I see two options:
@@ -110,10 +125,11 @@ It is high time Australia's authorities published source code and specifications
 
 ### Acknowledgements and collaborations
 
-Thanks to Andrew Conway, Chris Culnane, Peter Eckersley, Rob Merkel, and the MIT-PACT team, for interesting information, discussion and help.  Not all of them agree with the opinions expressed here.
+Thanks to Andrew Conway, Richard Chirgwin, Chris Culnane, Peter Eckersley, Rob Merkel, and the MIT-PACT team, for interesting information, discussion and help.  Not all of them agree with the opinions expressed here.
 Any errors are, of course, mine. 
 
 Comments, edits and suggestions are welcome - the easiest way to contact me is on Twitter @VTeagueAus
 or by email at [my first name] at thinkingcybersecurity.com
 
 You are welcome to quote or reprint this article as long as you acknowledge the original source.  Permanent link: [https://github.com/vteague/contactTracing/blob/master/blog/2020-04-23ContactTracingAndConsent.md](https://github.com/vteague/contactTracing/blob/master/blog/2020-04-23ContactTracingAndConsent.md).
+
