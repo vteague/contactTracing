@@ -45,14 +45,14 @@ The [Singaporean FAQ pages](https://TraceTogether.zendesk.com/hc/en-sg/articles/
 
 COVIDSafe records details about the messages it sends and receives, storing these in unencrypted form, though of course the UniqueID is already encrypted.  
 
-An example from our recorded logs is here.  The first column is simply the record number, the next is the time in miliseconds. The random-looking number is the UniqueID.  The 6th and 7th columns list the sender and receiver respectively. These records show our phone exchanging UniqueIDs with an iPhone 6s (also ours). Record 16 shows the message received from the iPhone; message 17 logs the message our phone sent back.
+An example from our recorded logs is here.  The first column is simply the record number, the next is the time in miliseconds. The random-looking number is the UniqueID.  The 6th and 7th columns list the sender and receiver respectively. These records show our phone exchanging UniqueIDs with an iPhone 6s (also ours). Record 16 shows the message received from the iPhone; record 17 logs the message our phone sent back.
 
 | Num | Timestamp (ms) | ver | UniqueID | org | sender | receiver | signal strength | 
 | --- | -------------- | ------- | -------- | --- | ------ | -------- | --------------- |
 |16|1587904478384|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-40|
 |17|1587904521695|1| [RandomLookingNumEndingIn]iVlA= |AU_DTA| [Our phone's model] |iPhone 6s|-42|
 
-Our receiving phone changed its UniqueID every 2 hours, but the iPhone 6s sent the same UniqueID throughout the 8-hour period - complete list of records is shown in the Appendix.
+Our receiving phone changed its UniqueID every 2 hours, but the iPhone 6s sent the same UniqueID throughout the 8-hour period - a complete list of records is shown in the Appendix.
 We are not quite sure why the UniqueID did not refresh every 2 hours, though this is expected when the Internet connection is unavailable.  Similar long persistence of a UniqueID has also been recorded by [Jim Mussared](https://twitter.com/jim_mussared/status/1254574854826627074).
 
 Note also that the app does not have the capacity to filter contacts based on their physical proximity or duration - it simply logs all the COVIDSafe messages it receives, leaving the determination of risk to the central server.
@@ -101,7 +101,7 @@ Comments, edits and suggestions are welcome - the easiest way to contact us is o
 
 or by email at [my first name] at thinkingcybersecurity.com 
 
-Earlier posts are [here]([https://github.com/vteague/contactTracing/blob/master/blog/)
+Earlier posts are [here](https://github.com/vteague/contactTracing/blob/master/blog/)
 
 You are welcome to quote or reprint this article as long as you acknowledge the original source.  Permanent link:
 [https://github.com/vteague/contactTracing/blob/master/blog/2020-04-27TracingTheChallenges.md](https://github.com/vteague/contactTracing/blob/master/blog/2020-04-27TracingTheChallenges.md).
