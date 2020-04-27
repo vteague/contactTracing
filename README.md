@@ -47,11 +47,11 @@ An example from our recorded logs is here.  COVIDSafe logs both the messages it 
 
 | Num | Timestamp (ms) | version | UniqueID | org | sender | receiver | signal strength | 
 | --- | -------------- | ------- | -------- | --- | ------ | -------- | --------------- |
-|16|1587904478384|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-40|
-|17|1587904521695|1| [RandomLookingNumberEndingIn]iVlA= |AU_DTA| [Our phone's model] |iPhone 6s|-42|
+|16|1587904478384|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-40|
+|17|1587904521695|1| [RandomLookingNumEndingIn]iVlA= |AU_DTA| [Our phone's model] |iPhone 6s|-42|
 
 Our receiving phone changed its UniqueID every 2 hours, but the iPhone 6s sent the same UniqueID throughout the 8-hour logging period, as shown in the appendix.
-We are not quite sure why the UniqueID did not refresh every 2 hours - perhaps its Internet connection was insufficient.  This unexpectedly long persistence of a UniqueID has been recorded also by [Jim Mussared](https://twitter.com/jim_mussared/status/1254574854826627074).
+We are not quite sure why the UniqueID did not refresh every 2 hours, though this is expected when the Internet connection is unavailable.  Similar long persistence of a UniqueID has been recorded also by [Jim Mussared](https://twitter.com/jim_mussared/status/1254574854826627074).
 
 Note also that the app does not have the capacity to filter contacts based on their physical proximity or duration - it simply records all the COVIDSafe messages it receives, leaving the determination of risk to the central server.
 
