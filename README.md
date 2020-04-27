@@ -43,17 +43,19 @@ The [Singaporean FAQ pages](https://TraceTogether.zendesk.com/hc/en-sg/articles/
 
 *Example of recorded logs added 27 Apr*
 
-An example from our recorded logs is here.  COVIDSafe logs both the messages it sends and the ones it receives.  The first column is simply the record number, the next is the time in miliseconds. The random-looking number is the UniqueID.  The 6th and 7th columns list the sender and receiver respectively. These records show our phone exchanging UniqueIDs with an iPhone 6s (also ours). Record 16 shows the message received from the iPhone; message 17 logs the message our phone sent back.
+COVIDSafe records details about the messages it sends and receives, storing these in unencrypted form, though of course the UniqueID is already encrypted.  
+
+An example from our recorded logs is here.  The first column is simply the record number, the next is the time in miliseconds. The random-looking number is the UniqueID.  The 6th and 7th columns list the sender and receiver respectively. These records show our phone exchanging UniqueIDs with an iPhone 6s (also ours). Record 16 shows the message received from the iPhone; message 17 logs the message our phone sent back.
 
 | Num | Timestamp (ms) | ver | UniqueID | org | sender | receiver | signal strength | 
 | --- | -------------- | ------- | -------- | --- | ------ | -------- | --------------- |
 |16|1587904478384|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-40|
 |17|1587904521695|1| [RandomLookingNumEndingIn]iVlA= |AU_DTA| [Our phone's model] |iPhone 6s|-42|
 
-Our receiving phone changed its UniqueID every 2 hours, but the iPhone 6s sent the same UniqueID throughout the 8-hour logging period, as shown in the appendix.
-We are not quite sure why the UniqueID did not refresh every 2 hours, though this is expected when the Internet connection is unavailable.  Similar long persistence of a UniqueID has been recorded also by [Jim Mussared](https://twitter.com/jim_mussared/status/1254574854826627074).
+Our receiving phone changed its UniqueID every 2 hours, but the iPhone 6s sent the same UniqueID throughout the 8-hour period - complete list of records is shown in the Appendix.
+We are not quite sure why the UniqueID did not refresh every 2 hours, though this is expected when the Internet connection is unavailable.  Similar long persistence of a UniqueID has also been recorded by [Jim Mussared](https://twitter.com/jim_mussared/status/1254574854826627074).
 
-Note also that the app does not have the capacity to filter contacts based on their physical proximity or duration - it simply records all the COVIDSafe messages it receives, leaving the determination of risk to the central server.
+Note also that the app does not have the capacity to filter contacts based on their physical proximity or duration - it simply logs all the COVIDSafe messages it receives, leaving the determination of risk to the central server.
 
 The relevant code fragment, from the decompiled COVIDSafe App, is also shown in the Appendix.
 
