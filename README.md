@@ -1,18 +1,18 @@
-# Tracing the challenges of Covid Safe
+# Tracing the challenges of COVIDSafe
 
 This blog post is joint work by 
 
-Chris Culnane, Eleanor McMurtry, Robert Merkel and Vanessa Teague.
+[Chris Culnane](https://twitter.com/chrisculnane), [Eleanor McMurtry](https://people.eng.unimelb.edu.au/mcmurtrye/), [Robert Merkel](https://twitter.com/rgmerk) and [Vanessa Teague](https://twitter.com/vteagueaus).
 
 It is made on a best-effort basis using decompiled code from the app, without access to server-side code or technical documentation.
 
 ## Overview
 
-The Australian COVID Safe app's architecture seems approximately similar to the Singaporean TraceTogether architecture, but there are some important differences that users should understand when they are deciding whether to install the app.  Not all of these have been well understood by the Privacy Impact Assessment (PIA) or the Department of Health's response to it.
+The Australian COVIDSafe app's architecture seems approximately similar to the Singaporean TraceTogether architecture, but there are some important differences that users should understand when they are deciding whether to install the app.  Not all of these have been well understood by the Privacy Impact Assessment (PIA) or the Department of Health's response to it.
 
-The basic operation of COVID Safe is to share encrypted IDs with other users, and to record the encrypted IDs that have been received.  If a person tests positive for COVID19, they upload the list of encrypted IDs they have received, then the central authority decrypts them and notifies those who  may be at risk.
+The basic operation of COVIDSafe is to share encrypted IDs with other users, and to record the encrypted IDs that have been received.  If a person tests positive for COVID19, they upload the list of encrypted IDs they have received, then the central authority decrypts them and notifies those who  may be at risk.
 
-In COVID Safe, the  encrypted IDs are called UniqueIDs.  Rather than generate them on the phone, COVID Safe follows TraceTogether in downloading them from the central server.  This brings us to the first main difference.
+In COVIDSafe, the  encrypted IDs are called UniqueIDs.  Rather than generate them on the phone, COVIDSafe follows TraceTogether in downloading them from the central server.  This brings us to the first main difference.
 
 ## The frequency of download and change of UniqueIDs.
 
@@ -37,14 +37,27 @@ We understand that legislation will attempt to make this illegal, but making it 
 
 ## The sharing, and plaintext logging by other users, of the exact model of the phone
 
-It is not true that all the data shared and stored by COVID Safe is encrypted.  It shares the phone's exact model in plaintext with other users, who store it alongside the corresponding Unique ID.
+It is not true that all the data shared and stored by COVIDSafe is encrypted.  It shares the phone's exact model in plaintext with other users, who store it alongside the corresponding Unique ID.
 
-The [Singaporean FAQ pages](https://TraceTogether.zendesk.com/hc/en-sg/articles/360043735693-What-data-is-collected-Are-you-able-to-see-my-personal-data-) explicitly mention that "In order to measure distance, information about the phone models and signal strength recorded is also shared, since different phone models transmit at different power," but we were unable to find any mention in COVID Safe's Privacy policy, FAQ or PIA, though the code clearly does log this information.  This is unfortunate because it does not appear as part of what users consent to.
+The [Singaporean FAQ pages](https://TraceTogether.zendesk.com/hc/en-sg/articles/360043735693-What-data-is-collected-Are-you-able-to-see-my-personal-data-) explicitly mention that "In order to measure distance, information about the phone models and signal strength recorded is also shared, since different phone models transmit at different power," but we were unable to find any mention in COVIDSafe's Privacy policy, FAQ or PIA, though the code clearly does log this information.  This is unfortunate because it does not appear as part of what users consent to.
 
-An example from our recorded logs will be added here.
-The relevant code fragment, from the decompiled Covid Safe App, is shown in the Appendix.
+*Example of recorded logs added 27 Apr*
 
-Although it may seem innocuous, the exact phone model of a person's contacts could be extremely revealing information.  Suppose for example that a person  wishes to understand whether  another person whose phone they have access to has visited some particular mutual acquaintance.  The controlling person could read the (plaintext) logs of COVID Safe and detect whether the phone models matched their hypothesis.  This becomes even easier if there are multiple people at the same meeting.  This sort of group re-identification could be possible in any situation in which one person had control over another's phone.  Although not very useful for suggesting a particular identity, it would be very valuable in confirming or refuting a theory of having met with a particular person.
+An example from our recorded logs is here.  COVIDSafe logs both the messages it sends and the ones it receives.  The first column is simply the record number, the next is the time in miliseconds. The random-looking number is the UniqueID.  The 6th and 7th columns list the sender and receiver respectively. These records show our phone exchanging UniqueIDs with an iPhone 6s (also ours). Record 16 shows the message received from the iPhone; message 17 logs the message our phone sent back.
+
+| Num | Timestamp (ms) | version | UniqueID | org | sender | receiver | signal strength | 
+| --- | -------------- | ------- | -------- | --- | ------ | -------- | --------------- |
+|16|1587904478384|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-40|
+|17|1587904521695|1| [RandomLookingNumberEndingIn]iVlA= |AU_DTA| [Our phone's model] |iPhone 6s|-42|
+
+Our receiving phone changed its UniqueID every 2 hours, but the iPhone 6s sent the same UniqueID throughout the 8-hour logging period, as shown in the appendix.
+We are not quite sure why the UniqueID did not refresh every 2 hours - perhaps its Internet connection was insufficient.  This unexpectedly long persistence of a UniqueID has been recorded also by [Jim Mussared](https://twitter.com/jim_mussared/status/1254574854826627074).
+
+Note also that the app does not have the capacity to filter contacts based on their physical proximity or duration - it simply records all the COVIDSafe messages it receives, leaving the determination of risk to the central server.
+
+The relevant code fragment, from the decompiled COVIDSafe App, is also shown in the Appendix.
+
+Although it may seem innocuous, the exact phone model of a person's contacts could be extremely revealing information.  Suppose for example that a person  wishes to understand whether  another person whose phone they have access to has visited some particular mutual acquaintance.  The controlling person could read the (plaintext) logs of COVIDSafe and detect whether the phone models matched their hypothesis.  This becomes even easier if there are multiple people at the same meeting.  This sort of group re-identification could be possible in any situation in which one person had control over another's phone.  Although not very useful for suggesting a particular identity, it would be very valuable in confirming or refuting a theory of having met with a particular person.
 
 In addition, the open broadcasting of the make and model of the phone presents a number of privacy and safety concerns.  The open nature of the broadcast allows anyone to write an app that listens for and records the information. As such, other apps can listen to and retrieve the data. There could be a number of uses of such information. For example, a thief could use the information to determine who has a high value phone worth stealing. Obviously, this is unlikely to happen in the short term, but cannot be discounted as a possibility. 
 
@@ -59,7 +72,7 @@ This problem could have been easily avoided if all the information being transmi
 
 ## The missed opportunity to omit some contacts
 
-When a person tests positive for COVID-19, they upload all the UniqueIDs they have heard over the days they may have been infectious.  COVID Safe does not give them the option of deleting or omitting some IDs before upload.
+When a person tests positive for COVID-19, they upload all the UniqueIDs they have heard over the days they may have been infectious.  COVIDSafe does not give them the option of deleting or omitting some IDs before upload.
 
 This means that users consent to an all-or-nothing communication to the authorities about their contacts.  We do not see why this was necessary.  If they wish to help defeat COVID-19 by notifying strangers in a train or supermarket that they may be at risk, then they also need to share with government a detailed picture of their day's close contacts with family and friends, unless they have remembered to stop the app at those times.  
 
@@ -70,9 +83,9 @@ Like TraceTogether, there are still serious privacy problems if we consider the 
 - recognise them on your phone if it acquires it, and 
 - learn your contacts if you test positive.
 
-These are probably still the most serious privacy concerns for some COVID Safe users.  None of this has changed since TraceTogether.  
+These are probably still the most serious privacy concerns for some COVIDSafe users.  None of this has changed since TraceTogether.  
 
-For other users, the storing of unencrypted phone models in their logs may be the most serious concern, because it allows someone who acquires their phone to analyse their COVID Safe logs and infer some information about who they have been near.  This doesn’t allow immediate identification, but might help to refute or support a pre-existing idea.  This, too, has not changed since TraceTogether, though the Singaporean FAQ makes it clearer than the Australian privacy policy.
+For other users, the storing of unencrypted phone models in their logs may be the most serious concern, because it allows someone who acquires their phone to analyse their COVIDSafe logs and infer some information about who they have been near.  This doesn’t allow immediate identification, but might help to refute or support a pre-existing idea.  This, too, has not changed since TraceTogether, though the Singaporean FAQ makes it clearer than the Australian privacy policy.
 
 The changes made by the Australian authorities allow easier checking of each person’s regular usage of the app, but do not otherwise significantly increase the authority’s information compared to those existing issues.  The change to two-hourly encrypted IDs does, however, substantially increase the opportunities for third-party tracking based on Bluetooth, though this is still a risk in TraceTogether also.
 
@@ -91,6 +104,7 @@ You are welcome to quote or reprint this article as long as you acknowledge the 
 
 
 ## Appendix
+### Code for producing logs
 
 These code fragments (decompiled from the version as at 26th April) show where COVID Safe records the exact model of the phone from which it has received and recorded the UniqueID.
 
@@ -116,14 +130,53 @@ public final void saveDataSaved(BluetoothDevice bluetoothDevice) {
       byte[] remove = this.readPayloadMap.remove(bluetoothDevice.getAddress());
    }
 }
+```
 
 The asPeripheralDevice call inputs the model of the phone from whom the message was received. (Similar code is present in a method asCentralDevice in the instance the phone is sending rather than receiving a tag.)
 
+```
 public final PeripheralDevice asPeripheralDevice() {
    String str = Build.MODEL;
    Intrinsics.checkExpressionValueIsNotNull(str, "Build.MODEL");
    return new PeripheralDevice(str, "SELF");
 }
 ```
+### Logs recorded on our phone.
+
+These are the logs made by our CovidSafe app through an 8 hour period, listening to messages received from a CovidSafe app running on our iPhone 6.  As you can see, the iPhone 6's 
+UniqueID does not change through the 8 hour period.
+
+| Num | Timestamp (ms) | version | UniqueID | org | sender | receiver | signal strength | 
+| --- | -------------- | ------- | -------- | --- | ------ | -------- | --------------- |
+40|1587907232545|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-32|
+46|1587907572325|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
+62|1587908486634|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-41|
+78|1587909389278|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-45|
+94|1587910289618|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-41|
+110|1587911183945|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
+126|1587912088167|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
+142|1587912994317|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
+158|1587913892653|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
+174|1587914755687|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-40|
+190|1587915690463|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
+206|1587916588241|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
+237|1587918357938|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
+253|1587919255372|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-41|
+269|1587920155379|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-39|
+285|1587921092812|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
+301|1587921955379|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
+317|1587922855652|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-40|
+333|1587923755462|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
+349|1587924664304|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
+365|1587925564366|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-41|
+381|1587926455461|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-40|
+397|1587927363888|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
+413|1587928272806|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
+429|1587929188862|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
+445|1587930089617|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
+461|1587930955535|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-41|
+477|1587931855509|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
+496|1587932763228|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-41|
+519|1587933669588|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
 
 
