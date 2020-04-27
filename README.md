@@ -1,135 +1,125 @@
-# Contact tracing and Consent: why using TraceTogether is different from using your memory
+# Tracing the challenges of Covid Safe
 
-Vanessa Teague
+This blog post is joint work by 
 
-CEO, Thinking Cybersecurity Pty Ltd
+Chris Culnane, Eleanor McMurtry, Robert Merkel and Vanessa Teague
 
-Imagine you have just tested positive for Covid19.  You talk with a health professional who asks you to try to remember all the people you have been near over the past two weeks.  
+The Australian COVID Safe app's architecture seems approximately similar to the Singaporean TraceTogether architecture, but there are some important differences that users should understand when they are deciding whether to install the app.  Not all of these have been well understood by the Privacy Impact Assessment (PIA) or the Department of Health's response to it.
 
-- There are people you were near, but don't know, for example on a crowded train.  Automated electronic contact tracing will help with that.
-- There are people you were near, but don't want to, or don't need to, tell the authorities about.  These might be from political meetings or religious services, visits to a lawyer or doctor, or simply time with family and friends.  
-You have a moral responsibility to tell the affected people, but you may not need to tell the authorities as well.
+The basic operation of COVID Safe is to share encrypted IDs with other users, and to record the encrypted IDs that have been received.  If a person tests positive for COVID19, they upload the list of encrypted IDs they have received, then the central authority decrypts them and notifies those who  may be at risk.
 
-How important is the option to spontaneously, undetectably and without prior planning, *not tell* the authorities about some of your contacts?
+In COVID Safe, the  encrypted IDs are called UniqueIDs.  Rather than generate them on the phone, COVID Safe follows TraceTogether in downloading them from the central server.  This brings us to the first main difference.
 
-This is the third in a series of blog posts.  In the [first](https://github.com/vteague/contactTracing/blob/master/blog/2020-03-30TweakingTracetogether.md) 
-and [second](https://github.com/vteague/contactTracing/blob/master/blog/2020-04-07ContactTracingWithoutSurveillance.md) I recommended that Australia adopt a decentralized contact tracing protocol such as 
-[DP^3T](https://github.com/DP-3T/), 
-[MIT-PACT](https://pact.mit.edu/), 
-[UW-PACT](https://arxiv.org/abs/2004.03544), 
-[covid-watch](https://github.com/DP-3T/) 
-or the proposed [Apple-Google API](https://www.apple.com/covid19/contacttracing/).  Worldwide, more than 200 other cryptographers have signed an [open letter explaining the benefits of decentralized protocols](https://www.esat.kuleuven.be/cosic/sites/contact-tracing-joint-statement/). In these protocols, your app can detect that you have been in contact with an infected person, without that person needing to have told the authorities you were nearby.
+##The frequency of download and change of UniqueIDs.
 
-The Australian government has decided instead to copy Singapore's [TraceTogether](https://www.tracetogether.gov.sg).  Its centralised model means that, when someone tests positive, their list of contacts is given to the authorities. 
+[TraceTogether's whitepaper](https://bluetrace.io/static/bluetrace_whitepaper-938063656596c104632def383eb33b3c.pdf) recommends "the issuance of daily batches of TempIDs," which are their equivalent of UniqueIDs.  These are recommended to change every 15 minutes.  So, based on TraceTogether's whitepaper, we believe that the app downloads a day's worth of TempIDs (presumably 96 of them) and uses a new one every 15 minutes. 
 
-The rest of this post examines some important details about TraceTogether's information flow. My firm conclusion is that Australia should not adopt this protocol. 
+The Australian app instead downloads a new UniqueID only every two hours.  It has no batch capacity, so if it cannot reconnect to the Internet within two hours it simply keeps using the same UniqueID.  This has serious privacy implications that are not adequately addressed in the PIA.
 
-None of this should be interpreted as any criticism of Singapore's TraceTogether engineers, who have completed a magnificent engineering effort that has probably saved many lives in their country.  Their code is clean, easy to understand, and was built phenomenally fast under tremendous pressure.  Their app shipped weeks ago, and the rest of the world is only just catching up.  I also want to thank them for making its source code openly available, which is helpful both to those who wish to re-use it and also to those of us who wish to argue that there are now better options.
+The PIA for COVID Safe says:
 
-## How it works
-
-When your phone is near another phone, the TraceTogether app sends random-looking beacons over Bluetooth.  These are actually encryptions of your ID.  The phone records all the beacons it has received.  If you test positive, you give the list of encrypted IDs you have received to the authorities.
-
-In my previous blog post about TraceTogether, I said: "Whenever you're within Bluetooth range of a person, you send them your ID, encrypted with the public key of the Singaporean authorities,"
-but I was mistaken.  That method wasn't implemented, apparently because it used too much computation for background mode.
-
-According to the [TraceTogether Whitepaper](https://bluetrace.io/static/bluetrace_whitepaper-938063656596c104632def383eb33b3c.pdf)  "In the reference implementation, TempIDs are cryptographically generated by the backend service."  So, rather than encrypting your own ID and sending it to nearby people, you first download your
-encrypted IDs from a central server.
-
-TraceTogether downloads encrypted IDs daily, in a process that looks a little like this picture from the similarly-designed European ROBERT project (except ROBERT downloads only at registration):
-
-![Receiving encrypted IDs](https://github.com/vteague/contactTracing/blob/master/blog/RobertPseudonymGen.png "Source: ROBERT project, https://github.com/ROBERT-proximity-tracing/documents/issues/2, last accessed 22 Apr 2020.")
-
-This is different from contact tracing based on human memory.
-
-## Some crucial differences from human memory
-
-### You cannot tell whether you are sending accurate IDs to your contacts.  
-
-When you download your encrypted IDs, you are relying on them to be a truthful reflection of your ID. If a software bug, security problem, or network attack gives you someone else's encrypted IDs instead, you have no way to notice.
-
-If you send IDs that are not yours, then when someone near you tests positive, you will not be notified.  For this reason, if the server is not adequately secured, an automated system has the potential to be a lot less accurate than human memory.
-
-Decentralised protocols do not suffer from this problem unless the attacker compromises the app on your phone.
-
-### You cannot tell whether you are receiving accurate IDs from your contacts. 
-
-You simply record each encrypted ID you receive, without knowing whether the list of encrypted IDs  that you will report to the authorities if you test positive truly matches the people you were near.
-
-Decentralised protocols suffer from this problem partially, but the attacker has to compromise the app on the phone of each person whose identity he wishes to misrepresent.  In Tracetogether, the server or its Internet connection is a single point of failure.
-
-This might also help non-contacts to infer your infection status, for example if they try to get their encrypted ID into the log of your phone, then wait to see whether they are notified of having been exposed.
-
-In both centralised and decentralised protocols, an attacker can replay from one phone the beacons he has heard on a different phone, thus making people seem to have been exposed when they were not.
-
-### The server can tell whether you are running the app.
-
-The TraceTogether whitepaper explains: "server-side TempID generation has a secondary benefit of allowing the health authority to understand adoption and usage levels of the app by logging the issuance of daily batches of TempIDs," which is a polite way of saying that the authorities can check each day whether you are running the app or not.  They cannot tell whether you are using it throughout the day, but it will be obvious if you don't turn it on at all.  So forget any plans you might have had to 'voluntarily' download it but disable or block it.  
-
-### If your list of encrypted contacts is leaked or forced, the IDs can be decrypted by whoever has the key, even if you do not test positive for Covid19
-
-For example, if you are a journalist who has decided to meet a source in person, and you are both running the app, then each phone will store the other person's encrypted ID.  Either phone, if seized by an authority with access to the decryption key or decryption server, reveals the other person's proximity.
-
-If the decryption key leaks, then any attacker who accesses a phone's logs can read off their contact list.
-
-In a decentralised protocol, an attacker who wants to know whether two phones have been near each other must either control both phones or control one of them and hope the other person soon tests positive.  This seems to be an unavoidable consequence of doing contact tracing.
-
-### If the central server uses weak or broken encryption, the encrypted IDs could be easily recovered by third parties.   
-
-That includes both the ones you send while you walk around, and also the list of others' you keep on your phone.
-
-Crucially, even if we get the source code for the Australian app, we cannot test that the encryption is being computed properly, since it is not being computed by the app.  Singapore's server code is openly available (good), but an Australian server could decide to downgrade its encryption at any time, even after deployment, and could do so for some people but not others.
-
-This would make you easily tracked through shopping malls and other public (and private) spaces, even if you never test positive.
-
-Decentralised protocols could also suffer from cryptographic problems that allow easier tracking than we expected, for example if Apple/Google make errors in the cryptography behind their new API or accidentally leak a person's key.  This would allow linking rather than immediate decryption, but might still allow a person to be easily identified.  So I hope that Apple/Google will be absolutely transparent about their implementations so that we can all examine and analyse them. 
-
-### If the central server cooperates with on-site Bluetooth tracking, your location can be easily tracked
-
-(This section added 24 Apr. Thanks to Eleanor McMurtry, [@noneuclideangrl](https://noneuclideangirl.net/), for pointing out that I'd omitted this important case.)
-
-Suppose for example that the central server happens to be a multinational advertising company like Amazon.  And suppose also that it would like to know exactly where you go when you visit a shopping centre.  Then it 
-arranges for Bluetooth-based receivers (such as [this infrastructure from Telstra](https://www.telstra.com.au/business-enterprise/products/internet-of-things/solutions/assets-equipment/track-and-monitor?gclid=EAIaIQobChMIxPervd3_6AIVVhaPCh0U9g2cEAAYASAAEgKjYfD_BwE&gclsrc=aw.ds)) to be placed around the shopping centre.
-Whenever you broadcast your encrypted ID on the Covid19 tracing app, Amazon can immediately decrypt your ID (it genererated it, remember) and hence, in cooperation with the shopping centre's owners, identify your different interactions throughout the centre.
-
-Obviously similar infrastructure could be established in public places in cooperation with government.  
-
-And if the central server leaks the decryption key (remembering that the key has to be available all the time) then that tracking opportunity is made available to anyone.
-
-Decentralised systems don't have this problem because there is no third-party service with the capacity to decrypt your beacons and recover your ID.  Individuals can be tracked in a similar way if their unique seed is extracted from their phone, but the attack would need to be performed separately on each phone.  Also, when a person tests positive their separate beacons for their infectious period can be linkable, depending on the details of the scheme.  So again there is a huge difference in the ease and scale of the attack in the centralised vs the decentralised solution.
+> 8.17	We understand that the National COVIDSafe Data Store will automatically generate new Unique IDs for each User every two hours and send these new Unique IDs to the User’s App.
+>
+> 8.18	The App will only accept the new Unique IDs if it is open and running. If the App successfully accepts the new Unique ID, an automatic message will be generated and sent back to the National COVIDSafe Data Store. This message will only effectively indicate a “yes (new Unique ID successfully delivered)” response to the National COVIDSafe Data Store. If the App is not open and running, it will not be able to accept a new Unique ID. It will continue to store the previous Unique ID and use this when the App is opened, until a new Unique ID is generated and accepted.
+>
+> 8.19	The National COVIDSafe Data Store will regularly compile and store reports (Unique IDReports), based on whether the new Unique ID for a User has been accepted by the App,which will give a measure of what proportion of Users who have downloaded the App have it open and running. These Unique ID Reports will not include any information about which Users have the App open and running, or where any Users are located.
 
 
-## Who runs the server?
+First note that this does not frankly describe the opportunity for the national data store to check, regularly, whether a particular individual has the app up and running.  In Singapore, we believe this information is only polled daily; in Australia it is polled at least two-hourly.  This means that a person who chooses to download the app, but prefers to turn it off at certain times of the day, is informing the Data Store of this choice.
 
-TraceTogether's open source implementation trusts all of this information to the Google Firebase cloud, thus giving Google constant visibility of everyone's IDs, immediate knowledge of the contacts of each infected person, and the job of notifying those exposed.  Firebase's [privacy policy](https://firebase.google.com/support/privacy/) makes it clear that Firebase employees can access personal data.  The obvious alternative, for Australia, would be to run that server as a government IT service.  So I see two options:
-1. we assume that Google (or some other corporate partner) won't abuse its detailed personal information about us, our contacts and our illnesses to make an extra buck, or
-2. we assume that the commonwealth government won't mess it up, crash the server, leak the information, or post it all on the web in not-really-de-identified form.
+Second, it greatly increases the opportunities for third-party tracking, because a given user advertises the same UniqueID for much longer.  The difference between 15 minutes' and 2 hours' worth of tracking opportunities is substantial.  Suppose for example that the person has a home tracking device such as a Google home mini or Amazon Alexa, or even a cheap Bluetooth-enabled IoT device, which records the person's UniqueID at home before they leave.  Then consider that if the person goes to a shopping mall or other public space, every device that cooperates with their home device can share the information about where they went.
 
-Both assumptions are squarely contradicted by past behaviour.
+We understand that legislation will attempt to make this illegal, but making it techincally difficult would have been a lot more effective.  How many IoT devices in how many Australians' homes already violate Australian privacy law?  A 15-minute refresh rate for Unique IDs would make this much harder (though perhaps not for Amazon, which hosts the Data Store).
 
-## What does 'voluntary' mean?
+##The sharing, and plaintext logging by other users, of the exact model of the phone
 
-Consenting to install it is not the same as consenting to run it constantly, which in turn is not the same as consenting to have your running of it constantly monitored.  Consent to upload also doesn't necessarily mean consent to upload every encounter.  These different consent options need to be clearly separated when presented to users.  
+It is not true that all the data shared and stored by COVID Safe is encrypted.  It shares the phone's exact model in plaintext with other users, who store it alongside the corresponding Unique ID.
 
-In its TraceTogether form, I would be happy to run it on the train but refuse to run it in my home or office.  I need to see the details of Australia's version before I decide.
+The [Singaporean FAQ pages](https://TraceTogether.zendesk.com/hc/en-sg/articles/360043735693-What-data-is-collected-Are-you-able-to-see-my-personal-data- explicitly mention that "In order to measure distance, information about the phone models and signal strength recorded is also shared, since different phone models transmit at different power," but we were unable to find any mention in COVID Safe's Privacy policy, FAQ or PIA, though the code clearly does log this information.  This is unfortunate because it does not appear as part of what users consent to.
 
-Informed consent requires telling us what we're consenting to.  Open source code is a minimal requirement.
+An example from our recorded logs will be added here.
+The relevant code fragment, from the decompiled Covid Safe App, is shown in the Appendix.
 
-## Can we have a debate please?
+Although it may seem innocuous, the exact phone model of a person's contacts could be extremely revealing information.  Suppose for example that a person  wishes to understand whether  another person whose phone they have access to has visited some particular mutual acquaintance.  The controlling person could read the (plaintext) logs of COVID Safe and detect whether the phone models matched their hypothesis.  This becomes even easier if there are multiple people at the same meeting.  This sort of group re-identification could be possible in any situation in which one person had control over another's phone.  Although not very useful for suggesting a particular identity, it would be very valuable in confirming or refuting a theory of having met with a particular person.
 
-Singapore's Tracetogether was a great piece of engineering when it was first developed, but it places a great deal of trust in a central authority whose misbehaviour or mistakes could cause both privacy problems and tracing failures.  
+In addition, the open broadcasting of the make and model of the phone presents a number of privacy and safety concerns.  The open nature of the broadcast allows anyone to write an app that listens for and records the information. As such, other apps can listen to and retrieve the data. There could be a number of uses of such information. For example, a thief could use the information to determine who has a high value phone worth stealing. Obviously, this is unlikely to happen in the short term, but cannot be discounted as a possibility. 
 
-Decentralised protocols would be much less susceptible to accidental breaches or deliberate abuse. They do have remaining privacy problems too, though.  See [Vaudenay's analysis of DP3T](https://eprint.iacr.org/2020/399) for a comprehensive discussion.
+The greater concern is the impact of broadcasting device parameters that do not change. In modern phones, the Bluetooth MAC address is randomised at intervals, often set as 15 minute intervals, to attempt to prevent devices from being tracked over time, which would reveal the trajectory of that device. If the same information is broadcast across multiple randomisation windows it negates the MAC address randomisation and could permit tracking beyond the window. MAC address randomisation is already [known to have weaknesses](https://arxiv.org/pdf/1904.10600.pdf). Anything that weakens or negates it entirely should be made clear to the end-user when they are consenting to usage of the app. 
 
-It is high time Australia's authorities published source code and specifications for their proposed app.  When they do, we can begin a genuine democratic discussion of whether we will tolerate a centralised app, insist on a decentralised one, or refuse to install either.
+By way of an example of how tracking could work, assume an organisation has Bluetooth scanners situated throughout a shopping centre. If there is only one device with a particular make and model in the shopping centre, then that device can be tracked across the entire shopping centre, since the make and model will act as unique ID in that context. Even if there are multiple devices with same make and model, they will still be able to be tracked whilst in non-overlapping sensor zones. They will even be able to be tracked within the same zone, provided that the Encrypted ID is not updated at exactly the same time on both devices. As such, it is likely that even devices with the same make and model will be liable to individual tracking over a much larger area and greater time than was intended in the Bluetooth standard. 
 
-### Acknowledgements and collaborations
 
-Thanks to Andrew Conway, Richard Chirgwin, Chris Culnane, Peter Eckersley, Rob Merkel, and the MIT-PACT team, for interesting information, discussion and help.  Not all of them agree with the opinions expressed here.
-Any errors are, of course, mine. 
+This problem could have been easily avoided if all the information being transmitted had been encrypted.
 
-Comments, edits and suggestions are welcome - the easiest way to contact me is on Twitter @VTeagueAus
-or by email at [my first name] at thinkingcybersecurity.com
 
-You are welcome to quote or reprint this article as long as you acknowledge the original source.  Permanent link: [https://github.com/vteague/contactTracing/blob/master/blog/2020-04-23ContactTracingAndConsent.md](https://github.com/vteague/contactTracing/blob/master/blog/2020-04-23ContactTracingAndConsent.md).
+
+##The opportunity to omit some contacts
+
+When a person tests positive for COVID-19, they upload all the UniqueIDs they have heard over the days they may have been infectious.  COVID Safe does not give them the option of deleting or omitting some IDs before upload.
+
+This means that users consent to an all-or-nothing communication to the authorities about their contacts.  We do not see why this was necessary.  If they wish to help defeat COVID-19 by notifying strangers in a train or supermarket that they may be at risk, then they also need to share with government a detailed picture of their day's close contacts with family and friends, unless they have remembered to stop the app at those times.  
+
+##Conclusion
+
+Like TraceTogether, there are still serious privacy problems if we consider the central authority to be an adversary.  That authority, whether Amazon, the Australian government or whoever accesses the server, can 
+(a) recognise all your encryptedIDs if they are heard on Bluetooth devices as you go, 
+(b) recognise them on your phone if it acquires it, and 
+(c) learns your contacts if you test positive.
+
+These are probably still the most serious privacy concerns for some COVID Safe users.  None of this has changed since TraceTogether.  
+
+For other users, the storing of unencrypted phone models in their logs may be the most serious concern, because it allows someone who acquires their phone to analyse their COVID Safe logs and infer some information about who they have been near.  This doesn’t allow immediate identification, but might help to refute or support a pre-existing idea.  This, too, has not changed since TraceTogether, though the Singaporean FAQ makes it clearer than the Australian privacy policy.
+
+The changes made by the Australian authorities allow easier checking of each person’s regular usage of the app, but do not otherwise significantly increase the authority’s information compared to those existing issues.  The change to two-hourly encrypted IDs does, however, substantially increase the opportunities for third-party tracking based on Bluetooth, though this is still a risk in TraceTogether also.
+
+###Followup and reuse
+
+Comments, edits and suggestions are welcome - the easiest way to contact us is on Twitter 
+@chrisculnane
+@noneuclideangrl
+@rgmerk
+@VTeagueAus
+
+or by email at [my first name] at thinkingcybersecurity.com 
+
+You are welcome to quote or reprint this article as long as you acknowledge the original source.  Permanent link:
+[https://github.com/vteague/contactTracing/blob/master/blog/2020-04-27TracingTheChallenges.md](https://github.com/vteague/contactTracing/blob/master/blog/2020-04-27TracingTheChallenges.md).
+
+
+## Appendix
+
+These code fragments (decompiled from the version as at 26th April) show where COVID Safe records the exact model of the phone from which it has received and recorded the UniqueID.
+
+```
+public final void saveDataSaved(BluetoothDevice bluetoothDevice) {
+   Intrinsics.checkParameterIsNotNull(bluetoothDevice, "device");
+   byte[] bArr = this.writeDataPayload.get(bluetoothDevice.getAddress());
+   if (bArr != null) {
+      try {
+         WriteRequestPayload createReadRequestPayload = WriteRequestPayload.Companion.createReadRequestPayload(bArr);
+         Utils.INSTANCE.broadcastStreetPassReceived(this.this$0.getContext(), new ConnectionRecord(createReadRequestPayload.getV(), createReadRequestPayload.getMsg(), createReadRequestPayload.getOrg(), TracerApp.Companion.asPeripheralDevice(), new CentralDevice(createReadRequestPayload.getModelC(), bluetoothDevice.getAddress()), createReadRequestPayload.getRssi(), createReadRequestPayload.getTxPower()));
+      } catch (Throwable th) {
+         CentralLog.Companion companion = CentralLog.Companion;
+         String access$getTAG$p = this.this$0.TAG;
+         companion.e(access$getTAG$p, "Failed to save write payload - " + th.getMessage());
+      }
+      Utils utils = Utils.INSTANCE;
+      Context context = this.this$0.getContext();
+      String address = bluetoothDevice.getAddress();
+      Intrinsics.checkExpressionValueIsNotNull(address, "device.address");
+      utils.broadcastDeviceProcessed(context, address);
+      this.writeDataPayload.remove(bluetoothDevice.getAddress());
+      byte[] remove = this.readPayloadMap.remove(bluetoothDevice.getAddress());
+   }
+}
+
+The asPeripheralDevice call inputs the model of the phone from whom the message was received. (Similar code is present in a method asCentralDevice in the instance the phone is sending rather than receiving a tag.)
+
+public final PeripheralDevice asPeripheralDevice() {
+   String str = Build.MODEL;
+   Intrinsics.checkExpressionValueIsNotNull(str, "Build.MODEL");
+   return new PeripheralDevice(str, "SELF");
+}
+```
+
 
