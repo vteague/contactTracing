@@ -2,11 +2,11 @@
 
 This blog post is joint work by 
 
-Chris Culnane, Eleanor McMurtry, Robert Merkel and Vanessa Teague
+Chris Culnane, Eleanor McMurtry, Robert Merkel and Vanessa Teague.
 
 It is made on a best-effort basis using decompiled code from the app, without access to server-side code or technical documentation.
 
-##Overview
+## Overview
 
 The Australian COVID Safe app's architecture seems approximately similar to the Singaporean TraceTogether architecture, but there are some important differences that users should understand when they are deciding whether to install the app.  Not all of these have been well understood by the Privacy Impact Assessment (PIA) or the Department of Health's response to it.
 
@@ -14,7 +14,7 @@ The basic operation of COVID Safe is to share encrypted IDs with other users, an
 
 In COVID Safe, the  encrypted IDs are called UniqueIDs.  Rather than generate them on the phone, COVID Safe follows TraceTogether in downloading them from the central server.  This brings us to the first main difference.
 
-##The frequency of download and change of UniqueIDs.
+## The frequency of download and change of UniqueIDs.
 
 [TraceTogether's whitepaper](https://bluetrace.io/static/bluetrace_whitepaper-938063656596c104632def383eb33b3c.pdf) recommends "the issuance of daily batches of TempIDs," which are their equivalent of UniqueIDs.  These are recommended to change every 15 minutes.  So, based on TraceTogether's whitepaper, we believe that the app downloads a day's worth of TempIDs (presumably 96 of them) and uses a new one every 15 minutes. 
 
@@ -35,7 +35,7 @@ Second, it greatly increases the opportunities for third-party tracking, because
 
 We understand that legislation will attempt to make this illegal, but making it techincally difficult would have been a lot more effective.  How many IoT devices in how many Australians' homes already violate Australian privacy law?  A 15-minute refresh rate for Unique IDs would make this much harder (though perhaps not for Amazon, which hosts the Data Store).
 
-##The sharing, and plaintext logging by other users, of the exact model of the phone
+## The sharing, and plaintext logging by other users, of the exact model of the phone
 
 It is not true that all the data shared and stored by COVID Safe is encrypted.  It shares the phone's exact model in plaintext with other users, who store it alongside the corresponding Unique ID.
 
@@ -57,18 +57,18 @@ This problem could have been easily avoided if all the information being transmi
 
 
 
-##The opportunity to omit some contacts
+## The opportunity to omit some contacts
 
 When a person tests positive for COVID-19, they upload all the UniqueIDs they have heard over the days they may have been infectious.  COVID Safe does not give them the option of deleting or omitting some IDs before upload.
 
 This means that users consent to an all-or-nothing communication to the authorities about their contacts.  We do not see why this was necessary.  If they wish to help defeat COVID-19 by notifying strangers in a train or supermarket that they may be at risk, then they also need to share with government a detailed picture of their day's close contacts with family and friends, unless they have remembered to stop the app at those times.  
 
-##Conclusion
+## Conclusion
 
 Like TraceTogether, there are still serious privacy problems if we consider the central authority to be an adversary.  That authority, whether Amazon, the Australian government or whoever accesses the server, can 
-(a) recognise all your encryptedIDs if they are heard on Bluetooth devices as you go, 
-(b) recognise them on your phone if it acquires it, and 
-(c) learns your contacts if you test positive.
+- recognise all your encryptedIDs if they are heard on Bluetooth devices as you go, 
+- recognise them on your phone if it acquires it, and 
+- learn your contacts if you test positive.
 
 These are probably still the most serious privacy concerns for some COVID Safe users.  None of this has changed since TraceTogether.  
 
@@ -76,7 +76,7 @@ For other users, the storing of unencrypted phone models in their logs may be th
 
 The changes made by the Australian authorities allow easier checking of each person’s regular usage of the app, but do not otherwise significantly increase the authority’s information compared to those existing issues.  The change to two-hourly encrypted IDs does, however, substantially increase the opportunities for third-party tracking based on Bluetooth, though this is still a risk in TraceTogether also.
 
-###Followup and reuse
+### Followup and reuse
 
 Comments, edits and suggestions are welcome - the easiest way to contact us is on Twitter 
 @chrisculnane
