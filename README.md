@@ -101,6 +101,8 @@ Comments, edits and suggestions are welcome - the easiest way to contact us is o
 
 or by email at [my first name] at thinkingcybersecurity.com 
 
+Earlier posts are [here]([https://github.com/vteague/contactTracing/blob/master/blog/)
+
 You are welcome to quote or reprint this article as long as you acknowledge the original source.  Permanent link:
 [https://github.com/vteague/contactTracing/blob/master/blog/2020-04-27TracingTheChallenges.md](https://github.com/vteague/contactTracing/blob/master/blog/2020-04-27TracingTheChallenges.md).
 
