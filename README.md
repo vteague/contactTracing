@@ -4,6 +4,8 @@ This blog post is joint work by
 
 Chris Culnane, Eleanor McMurtry, Robert Merkel and Vanessa Teague
 
+It is made on a best-effort basis using decompiled code from the app, without access to server-side code or technical documentation.
+
 The Australian COVID Safe app's architecture seems approximately similar to the Singaporean TraceTogether architecture, but there are some important differences that users should understand when they are deciding whether to install the app.  Not all of these have been well understood by the Privacy Impact Assessment (PIA) or the Department of Health's response to it.
 
 The basic operation of COVID Safe is to share encrypted IDs with other users, and to record the encrypted IDs that have been received.  If a person tests positive for COVID19, they upload the list of encrypted IDs they have received, then the central authority decrypts them and notifies those who  may be at risk.
