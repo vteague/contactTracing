@@ -45,7 +45,7 @@ The [Singaporean FAQ pages](https://TraceTogether.zendesk.com/hc/en-sg/articles/
 
 An example from our recorded logs is here.  COVIDSafe logs both the messages it sends and the ones it receives.  The first column is simply the record number, the next is the time in miliseconds. The random-looking number is the UniqueID.  The 6th and 7th columns list the sender and receiver respectively. These records show our phone exchanging UniqueIDs with an iPhone 6s (also ours). Record 16 shows the message received from the iPhone; message 17 logs the message our phone sent back.
 
-| Num | Timestamp (ms) | version | UniqueID | org | sender | receiver | signal strength | 
+| Num | Timestamp (ms) | ver | UniqueID | org | sender | receiver | signal strength | 
 | --- | -------------- | ------- | -------- | --- | ------ | -------- | --------------- |
 |16|1587904478384|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-40|
 |17|1587904521695|1| [RandomLookingNumEndingIn]iVlA= |AU_DTA| [Our phone's model] |iPhone 6s|-42|
@@ -146,37 +146,37 @@ public final PeripheralDevice asPeripheralDevice() {
 These are the logs made by our CovidSafe app through an 8 hour period, listening to messages received from a CovidSafe app running on our iPhone 6.  As you can see, the iPhone 6's 
 UniqueID does not change through the 8 hour period.
 
-| Num | Timestamp (ms) | version | UniqueID | org | sender | receiver | signal strength | 
+| Num | Timestamp (ms) | ver | UniqueID | org | sender | receiver | signal strength | 
 | --- | -------------- | ------- | -------- | --- | ------ | -------- | --------------- |
-40|1587907232545|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-32|
-46|1587907572325|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
-62|1587908486634|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-41|
-78|1587909389278|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-45|
-94|1587910289618|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-41|
-110|1587911183945|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
-126|1587912088167|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
-142|1587912994317|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
-158|1587913892653|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
-174|1587914755687|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-40|
-190|1587915690463|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
-206|1587916588241|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
-237|1587918357938|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
-253|1587919255372|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-41|
-269|1587920155379|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-39|
-285|1587921092812|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
-301|1587921955379|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
-317|1587922855652|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-40|
-333|1587923755462|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
-349|1587924664304|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
-365|1587925564366|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-41|
-381|1587926455461|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-40|
-397|1587927363888|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
-413|1587928272806|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
-429|1587929188862|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
-445|1587930089617|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
-461|1587930955535|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-41|
-477|1587931855509|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
-496|1587932763228|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-41|
-519|1587933669588|1| [RandomLookingNumberEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
+40|1587907232545|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-32|
+46|1587907572325|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
+62|1587908486634|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-41|
+78|1587909389278|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-45|
+94|1587910289618|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-41|
+110|1587911183945|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
+126|1587912088167|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
+142|1587912994317|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
+158|1587913892653|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
+174|1587914755687|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-40|
+190|1587915690463|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
+206|1587916588241|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
+237|1587918357938|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
+253|1587919255372|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-41|
+269|1587920155379|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-39|
+285|1587921092812|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
+301|1587921955379|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
+317|1587922855652|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-40|
+333|1587923755462|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
+349|1587924664304|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
+365|1587925564366|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-41|
+381|1587926455461|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-40|
+397|1587927363888|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
+413|1587928272806|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
+429|1587929188862|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
+445|1587930089617|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
+461|1587930955535|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-41|
+477|1587931855509|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
+496|1587932763228|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-41|
+519|1587933669588|1| [RandomLookingNumEndingIn]4h0s= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
 
 
