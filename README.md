@@ -57,7 +57,7 @@ This problem could have been easily avoided if all the information being transmi
 
 
 
-## The opportunity to omit some contacts
+## The missed opportunity to omit some contacts
 
 When a person tests positive for COVID-19, they upload all the UniqueIDs they have heard over the days they may have been infectious.  COVID Safe does not give them the option of deleting or omitting some IDs before upload.
 
