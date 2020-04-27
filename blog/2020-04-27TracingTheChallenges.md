@@ -1,4 +1,4 @@
-# Tracing the challenges of Covid Safe
+# Tracing the challenges of COVIDSafe
 
 This blog post is joint work by 
 
@@ -8,11 +8,11 @@ It is made on a best-effort basis using decompiled code from the app, without ac
 
 ## Overview
 
-The Australian COVID Safe app's architecture seems approximately similar to the Singaporean TraceTogether architecture, but there are some important differences that users should understand when they are deciding whether to install the app.  Not all of these have been well understood by the Privacy Impact Assessment (PIA) or the Department of Health's response to it.
+The Australian COVIDSafe app's architecture seems approximately similar to the Singaporean TraceTogether architecture, but there are some important differences that users should understand when they are deciding whether to install the app.  Not all of these have been well understood by the Privacy Impact Assessment (PIA) or the Department of Health's response to it.
 
-The basic operation of COVID Safe is to share encrypted IDs with other users, and to record the encrypted IDs that have been received.  If a person tests positive for COVID19, they upload the list of encrypted IDs they have received, then the central authority decrypts them and notifies those who  may be at risk.
+The basic operation of COVIDSafe is to share encrypted IDs with other users, and to record the encrypted IDs that have been received.  If a person tests positive for COVID19, they upload the list of encrypted IDs they have received, then the central authority decrypts them and notifies those who  may be at risk.
 
-In COVID Safe, the  encrypted IDs are called UniqueIDs.  Rather than generate them on the phone, COVID Safe follows TraceTogether in downloading them from the central server.  This brings us to the first main difference.
+In COVIDSafe, the  encrypted IDs are called UniqueIDs.  Rather than generate them on the phone, COVIDSafe follows TraceTogether in downloading them from the central server.  This brings us to the first main difference.
 
 ## The frequency of download and change of UniqueIDs.
 
@@ -20,7 +20,7 @@ In COVID Safe, the  encrypted IDs are called UniqueIDs.  Rather than generate th
 
 The Australian app instead downloads a new UniqueID only every two hours.  It has no batch capacity, so if it cannot reconnect to the Internet within two hours it simply keeps using the same UniqueID.  This has serious privacy implications that are not adequately addressed in the PIA.
 
-The PIA for COVID Safe says:
+The PIA for COVIDSafe says:
 
 > 8.17	We understand that the National COVIDSafe Data Store will automatically generate new Unique IDs for each User every two hours and send these new Unique IDs to the User’s App.
 >
@@ -37,14 +37,14 @@ We understand that legislation will attempt to make this illegal, but making it 
 
 ## The sharing, and plaintext logging by other users, of the exact model of the phone
 
-It is not true that all the data shared and stored by COVID Safe is encrypted.  It shares the phone's exact model in plaintext with other users, who store it alongside the corresponding Unique ID.
+It is not true that all the data shared and stored by COVIDSafe is encrypted.  It shares the phone's exact model in plaintext with other users, who store it alongside the corresponding Unique ID.
 
-The [Singaporean FAQ pages](https://TraceTogether.zendesk.com/hc/en-sg/articles/360043735693-What-data-is-collected-Are-you-able-to-see-my-personal-data- explicitly mention that "In order to measure distance, information about the phone models and signal strength recorded is also shared, since different phone models transmit at different power," but we were unable to find any mention in COVID Safe's Privacy policy, FAQ or PIA, though the code clearly does log this information.  This is unfortunate because it does not appear as part of what users consent to.
+The [Singaporean FAQ pages](https://TraceTogether.zendesk.com/hc/en-sg/articles/360043735693-What-data-is-collected-Are-you-able-to-see-my-personal-data- explicitly mention that "In order to measure distance, information about the phone models and signal strength recorded is also shared, since different phone models transmit at different power," but we were unable to find any mention in COVIDSafe's Privacy policy, FAQ or PIA, though the code clearly does log this information.  This is unfortunate because it does not appear as part of what users consent to.
 
 An example from our recorded logs will be added here.
-The relevant code fragment, from the decompiled Covid Safe App, is shown in the Appendix.
+The relevant code fragment, from the decompiled COVIDSafe App, is shown in the Appendix.
 
-Although it may seem innocuous, the exact phone model of a person's contacts could be extremely revealing information.  Suppose for example that a person  wishes to understand whether  another person whose phone they have access to has visited some particular mutual acquaintance.  The controlling person could read the (plaintext) logs of COVID Safe and detect whether the phone models matched their hypothesis.  This becomes even easier if there are multiple people at the same meeting.  This sort of group re-identification could be possible in any situation in which one person had control over another's phone.  Although not very useful for suggesting a particular identity, it would be very valuable in confirming or refuting a theory of having met with a particular person.
+Although it may seem innocuous, the exact phone model of a person's contacts could be extremely revealing information.  Suppose for example that a person  wishes to understand whether  another person whose phone they have access to has visited some particular mutual acquaintance.  The controlling person could read the (plaintext) logs of COVIDSafe and detect whether the phone models matched their hypothesis.  This becomes even easier if there are multiple people at the same meeting.  This sort of group re-identification could be possible in any situation in which one person had control over another's phone.  Although not very useful for suggesting a particular identity, it would be very valuable in confirming or refuting a theory of having met with a particular person.
 
 In addition, the open broadcasting of the make and model of the phone presents a number of privacy and safety concerns.  The open nature of the broadcast allows anyone to write an app that listens for and records the information. As such, other apps can listen to and retrieve the data. There could be a number of uses of such information. For example, a thief could use the information to determine who has a high value phone worth stealing. Obviously, this is unlikely to happen in the short term, but cannot be discounted as a possibility. 
 
@@ -59,7 +59,7 @@ This problem could have been easily avoided if all the information being transmi
 
 ## The missed opportunity to omit some contacts
 
-When a person tests positive for COVID-19, they upload all the UniqueIDs they have heard over the days they may have been infectious.  COVID Safe does not give them the option of deleting or omitting some IDs before upload.
+When a person tests positive for COVID-19, they upload all the UniqueIDs they have heard over the days they may have been infectious.  COVIDSafe does not give them the option of deleting or omitting some IDs before upload.
 
 This means that users consent to an all-or-nothing communication to the authorities about their contacts.  We do not see why this was necessary.  If they wish to help defeat COVID-19 by notifying strangers in a train or supermarket that they may be at risk, then they also need to share with government a detailed picture of their day's close contacts with family and friends, unless they have remembered to stop the app at those times.  
 
@@ -70,9 +70,9 @@ Like TraceTogether, there are still serious privacy problems if we consider the 
 - recognise them on your phone if it acquires it, and 
 - learn your contacts if you test positive.
 
-These are probably still the most serious privacy concerns for some COVID Safe users.  None of this has changed since TraceTogether.  
+These are probably still the most serious privacy concerns for some COVIDSafe users.  None of this has changed since TraceTogether.  
 
-For other users, the storing of unencrypted phone models in their logs may be the most serious concern, because it allows someone who acquires their phone to analyse their COVID Safe logs and infer some information about who they have been near.  This doesn’t allow immediate identification, but might help to refute or support a pre-existing idea.  This, too, has not changed since TraceTogether, though the Singaporean FAQ makes it clearer than the Australian privacy policy.
+For other users, the storing of unencrypted phone models in their logs may be the most serious concern, because it allows someone who acquires their phone to analyse their COVIDSafe logs and infer some information about who they have been near.  This doesn’t allow immediate identification, but might help to refute or support a pre-existing idea.  This, too, has not changed since TraceTogether, though the Singaporean FAQ makes it clearer than the Australian privacy policy.
 
 The changes made by the Australian authorities allow easier checking of each person’s regular usage of the app, but do not otherwise significantly increase the authority’s information compared to those existing issues.  The change to two-hourly encrypted IDs does, however, substantially increase the opportunities for third-party tracking based on Bluetooth, though this is still a risk in TraceTogether also.
 
@@ -92,7 +92,7 @@ You are welcome to quote or reprint this article as long as you acknowledge the 
 
 ## Appendix
 
-These code fragments (decompiled from the version as at 26th April) show where COVID Safe records the exact model of the phone from which it has received and recorded the UniqueID.
+These code fragments (decompiled from the version as at 26th April) show where COVIDSafe records the exact model of the phone from which it has received and recorded the UniqueID.
 
 ```
 public final void saveDataSaved(BluetoothDevice bluetoothDevice) {
