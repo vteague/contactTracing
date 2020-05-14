@@ -6,9 +6,9 @@ This blog post is joint work by
 
 While it is gratifying that the Australian government has -- belatedly -- released the source code to the Android and iOS versions of COVIDSafe, the practical impact has been fairly limited.  
 
-Within minutes of the COVIDSafe app being available from the Play Store, many people, including us, were able to view a pretty good facsimile of the Android version of the app’s source code, through the wonders of freely downloadable pieces of software called APK Extractor and JadX.  
+Within minutes of the COVIDSafe app being available from the Play Store, many people, including us, were able to view a pretty good facsimile of the Android version of the app’s source code, through the wonders of freely downloadable pieces of software called [APK Extractor](https://play.google.com/store/apps/details?id=com.ext.ui&hl=en_AU) and [JadX](https://github.com/skylot/jadx).  
 
-But we weren’t restricted to just inspecting decompiled source code.  We were able to observe the app running, and view the data files the app creates in response to proximity to other phones.  We were also able to use nRF Connect, a Bluetooth debugging app, to connect to phones running COVIDSafe and observe what they did.
+But we weren’t restricted to just inspecting decompiled source code.  We were able to observe the app running, and view the data files the app creates in response to proximity to other phones.  We were also able to use [nRF Connect](https://www.nordicsemi.com/Software-and-tools/Development-Tools/nRF-Connect-for-mobile), a Bluetooth debugging app, to connect to phones running COVIDSafe and observe what they did.
 
 Combined with our existing knowledge of OpenTrace, the Singaporean contact tracing app, all of these things were quite sufficient for a small team of experts to find a number of serious privacy-related bugs in the COVIDSafe client -- and we haven’t found any more since the source code release.
 
@@ -26,15 +26,15 @@ It would not have been any more difficult to write an app in which UniqueIDs wer
 
 ## What’s in a TempID?
 
-As we’ve said, we don’t know for sure what’s in a COVIDSafe UniqueID, because the government has chosen not to release server code, or even some kind of architecture document explaining the details of how the system works.  However, we can have a look at the system upon which COVIDSafe is based: the open source OpenTrace app and server publicly released by the Singaporean government, and the white paper explaining how it works.  BlueTrace refers to “TempIDs” rather than “UniqueIDs”, so we’ll use that term to make clear which version of the app we’re talking about.
+As we’ve said, we don’t know for sure what’s in a COVIDSafe UniqueID, because the government has chosen not to release server code, or even some kind of architecture document explaining the details of how the system works.  However, we can have a look at the system upon which COVIDSafe is based: the open source OpenTrace app and server publicly released by the Singaporean government, and the [white paper](https://bluetrace.io/static/bluetrace_whitepaper-938063656596c104632def383eb33b3c.pdf) explaining how it works.  BlueTrace refers to “TempIDs” rather than “UniqueIDs”, so we’ll use that term to make clear which version of the app we’re talking about.
 
 In OpenTrace, each app user has a User ID, which is directly linked in a database table somewhere to each registered user’s name and phone number.  When a phone requests a new TempID which it will use for a given time period, the server code:
 
-Takes the User ID with the start and the end of the time period for which the TempID is valid for, and concatenates them together, to form the “plaintext”.
-Generates a random “initialization vector” -- a string of random gibberish precisely 16 bytes long.
-Uses the secret key which only the operator of the servers (the Singaporean government) knows, the initialization vector, and the plaintext, and feeds them to an encryption algorithm called AES-256-GCM.  The algorithm produces two outputs -- the ciphertext, and the auth tag.
-It then concatenates the ciphertext, the initialization vector, and the auth tag together -- but not, obviously, the secret key.  
-Voila, one newly minted TempID!
+- Takes the User ID with the start and the end of the time period for which the TempID is valid for, and concatenates them together, to form the “plaintext”.
+- Generates a random “initialization vector” -- a string of random gibberish precisely 16 bytes long.
+- Uses the secret key which only the operator of the servers (the Singaporean government) knows, the initialization vector, and the plaintext, and feeds them to an encryption algorithm called AES-256-GCM.  The algorithm produces two outputs -- the ciphertext, and the auth tag.
+- It then concatenates the ciphertext, the initialization vector, and the auth tag together -- but not, obviously, the secret key.  
+- Voila, one newly minted TempID!
 
 In the unfortunate event that the “owner” of a TempID comes into contact with somebody who tests positive, the Singaporean government can reverse the process using their secret key, and get back the original plaintext, including the User ID.  They can then go back to the database and get the user’s contact details.
 
@@ -56,7 +56,7 @@ We simply don’t know.
 
 One possible reason for using different cryptography than OpenTrace is because of the split responsibilities in our federal system.  COVIDSafe will be operated by the federal government, while state governments are responsible for running contact tracing programs, and managing quarantines.
 
-We’ve been told that only state and territory health authorities will be able to decrypt the data. This may have been important for generating public trust given the commonwealth’s problematic history on data security and use.  But if the government has actually attempted to design this guarantee into the code, the OpenTrace TempID generation scheme would not work.  In OpenTrace, one central authority knows all the keys for decrypting all the TempIDs.  In Australia, key management could get complicated when people cross state borders.  
+We’ve been told that [only state and territory health authorities will be able to decrypt the data](https://www.abc.net.au/news/2020-04-26/coronavirus-tracing-app-covidsafe-australia-covid-19-data/12186068). This may have been important for generating public trust given the commonwealth’s [problematic history](https://www.theguardian.com/australia-news/2020/apr/26/coronavirus-app-will-australians-trust-a-government-with-a-history-of-tech-fails-and-data-breaches) on data security and use.  But if the government has actually attempted to design this guarantee into the code, the OpenTrace TempID generation scheme would not work.  In OpenTrace, one central authority knows all the keys for decrypting all the TempIDs.  In Australia, key management could get complicated when people cross state borders.  
 
 For example, suppose you live in Albury -- you’ll spend most of your time gathering UniqueIDs that are encrypted with a key known to the NSW government.  But if you cross the river and go grocery shopping in Wodonga, you collect some Victorian UniqueIDs (encrypted with a key known to the Victorian authorities).  If you contract COVID-19, you upload all the UniqueIDs you have received.  Who decrypts that data?
 
