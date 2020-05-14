@@ -1,185 +1,84 @@
-# Tracing the challenges of COVIDSafe
+# The missing server code, and why it matters 
 
 This blog post is joint work by 
 
-[Chris Culnane](https://twitter.com/chrisculnane), [Eleanor McMurtry](https://people.eng.unimelb.edu.au/mcmurtrye/), [Robert Merkel](https://twitter.com/rgmerk) and [Vanessa Teague](https://twitter.com/vteagueaus).
+[Robert Merkel](https://twitter.com/rgmerk), [Eleanor McMurtry](https://eleanorm.info/) and [Vanessa Teague](https://thinkingcybersecurity.com).
 
-It is made on a best-effort basis using decompiled code from the app, without access to server-side code or technical documentation.
+While it is gratifying that the Australian government has -- belatedly -- released the source code to the Android and iOS versions of COVIDSafe, the practical impact has been fairly limited.  
 
-## Overview
+Within minutes of the COVIDSafe app being available from the Play Store, many people, including us, were able to view a pretty good facsimile of the Android version of the app’s source code, through the wonders of freely downloadable pieces of software called APK Extractor and JadX.  
 
-The Australian COVIDSafe app's architecture seems approximately similar to the Singaporean TraceTogether architecture, but there are some important differences that users should understand when they are deciding whether to install the app.  Not all of these have been well understood by the Privacy Impact Assessment (PIA) or the Department of Health's response to it.
+But we weren’t restricted to just inspecting decompiled source code.  We were able to observe the app running, and view the data files the app creates in response to proximity to other phones.  We were also able to use nRF Connect, a Bluetooth debugging app, to connect to phones running COVIDSafe and observe what they did.
 
-The basic operation of COVIDSafe is to share encrypted IDs with other users, and to record the encrypted IDs that have been received.  If a person tests positive for COVID19, they upload the list of encrypted IDs they have received, then the central authority decrypts them and notifies those who  may be at risk.
+Combined with our existing knowledge of OpenTrace, the Singaporean contact tracing app, all of these things were quite sufficient for a small team of experts to find a number of serious privacy-related bugs in the COVIDSafe client -- and we haven’t found any more since the source code release.
 
-In COVIDSafe, the  encrypted IDs are called UniqueIDs.  Rather than generate them on the phone, COVIDSafe follows TraceTogether in downloading them from the central server.  This brings us to the first main difference.
+However, privacy and security risks of similar magnitude exist on the other side of the COVIDSafe system -- the server code running somewhere in AWS’s data center in Sydney.  In this article, we explain the key role of this server code, and the importance of proper scrutiny of it.
 
-## The frequency of download and change of UniqueIDs.
+## What is a UniqueID?
 
-[TraceTogether's whitepaper](https://bluetrace.io/static/bluetrace_whitepaper-938063656596c104632def383eb33b3c.pdf) recommends "the issuance of daily batches of TempIDs," which are their equivalent of UniqueIDs.  These are recommended to change every 15 minutes.  So, based on TraceTogether's whitepaper, we believe that the app downloads a day's worth of TempIDs (presumably 96 of them) and uses a new one every 15 minutes. 
+In a nutshell, the COVIDSafe app works by exchanging “UniqueIDs” with any other phone running the app that it comes within Bluetooth range with.  The phone will therefore contain a time log of the UniqueIDs that it has seen in the past 21 days.  If you test positive to COVID-19, you can upload your time log.  Somehow, the UniqueIDs in your time log will be converted back to names (or pseudonyms) and phone numbers, and passed on to the contact tracer assigned to your case.  If a contact tracer (in discussion with you) decides that a contact was sufficiently lengthy and close, they will use the contact data linked to the UniqueIDs to get in contact with that person so that they can be tested and self-isolate.
 
-The Australian app instead downloads a new UniqueID only every two hours.  It has no batch capacity, so if it cannot reconnect to the Internet within two hours it simply keeps using the same UniqueID.  This has serious privacy implications that are not adequately addressed in the PIA.
+There are two key privacy mechanisms intended to ensure that only government-approved contact tracers can access the contact information linked to each UniqueID.  Firstly, the UniqueIDs appear to be random gibberish -- whatever they do contain, it’s not a plaintext record of people’s names and phone numbers!  Secondly, the UniqueID you broadcast changes every two hours -- so if I walk through a shopping centre in the morning, by the time I return in the afternoon I have a completely new UniqueID.
 
-The PIA for COVID Safe says:
+But here’s the thing: we don’t know what’s in a UniqueID, how the contact tracers will go from a TempID to actual contact details, or whether they really do protect your privacy from everybody else.  That’s because the UniqueIDs aren’t generated on your phone.  They’re generated by the COVIDSafe server code, which remains a secret, and the COVIDSafe app downloads a new one, every couple of hours.
 
-> 8.17	We understand that the National COVIDSafe Data Store will automatically generate new Unique IDs for each User every two hours and send these new Unique IDs to the User’s App.
->
-> 8.18	The App will only accept the new Unique IDs if it is open and running. If the App successfully accepts the new Unique ID, an automatic message will be generated and sent back to the National COVIDSafe Data Store. This message will only effectively indicate a “yes (new Unique ID successfully delivered)” response to the National COVIDSafe Data Store. If the App is not open and running, it will not be able to accept a new Unique ID. It will continue to store the previous Unique ID and use this when the App is opened, until a new Unique ID is generated and accepted.
->
-> 8.19	The National COVIDSafe Data Store will regularly compile and store reports (Unique IDReports), based on whether the new Unique ID for a User has been accepted by the App,which will give a measure of what proportion of Users who have downloaded the App have it open and running. These Unique ID Reports will not include any information about which Users have the App open and running, or where any Users are located.
+It would not have been any more difficult to write an app in which UniqueIDs were generated directly on a phone -- the UK’s contact tracing app apparently does so, as will apps based on Google and Apple’s API.  But, for whatever reason, the Australian government and their app developers have chosen to follow a different approach.
 
-First note that this does not frankly describe the opportunity for the national data store to check, regularly, whether a particular individual has the app up and running.  In Singapore, we believe this information is only polled daily; in Australia it is polled at least two-hourly.  This means that a person who chooses to download the app, but prefers to turn it off at certain times of the day, is informing the Data Store of this choice.
+## What’s in a TempID?
 
-Second, it greatly increases the opportunities for third-party tracking, because a given user advertises the same UniqueID for much longer.  The difference between 15 minutes' and 2 hours' worth of tracking opportunities is substantial.  Suppose for example that the person has a home tracking device such as a Google home mini or Amazon Alexa, or even a cheap Bluetooth-enabled IoT device, which records the person's UniqueID at home before they leave.  Then consider that if the person goes to a shopping mall or other public space, every device that cooperates with their home device can share the information about where they went.
+As we’ve said, we don’t know for sure what’s in a COVIDSafe UniqueID, because the government has chosen not to release server code, or even some kind of architecture document explaining the details of how the system works.  However, we can have a look at the system upon which COVIDSafe is based: the open source OpenTrace app and server publicly released by the Singaporean government, and the white paper explaining how it works.  BlueTrace refers to “TempIDs” rather than “UniqueIDs”, so we’ll use that term to make clear which version of the app we’re talking about.
 
-We understand that legislation will attempt to make this illegal, but making it techincally difficult would have been a lot more effective.  How many IoT devices in how many Australians' homes already violate Australian privacy law?  A 15-minute refresh rate for Unique IDs would make this much harder (though perhaps not for Amazon, which hosts the Data Store).
+In OpenTrace, each app user has a User ID, which is directly linked in a database table somewhere to each registered user’s name and phone number.  When a phone requests a new TempID which it will use for a given time period, the server code:
 
-## The sharing, and plaintext logging by other users, of the exact model of the phone
+Takes the User ID with the start and the end of the time period for which the TempID is valid for, and concatenates them together, to form the “plaintext”.
+Generates a random “initialization vector” -- a string of random gibberish precisely 16 bytes long.
+Uses the secret key which only the operator of the servers (the Singaporean government) knows, the initialization vector, and the plaintext, and feeds them to an encryption algorithm called AES-256-GCM.  The algorithm produces two outputs -- the ciphertext, and the auth tag.
+It then concatenates the ciphertext, the initialization vector, and the auth tag together -- but not, obviously, the secret key.  
+Voila, one newly minted TempID!
 
-It is not true that all the data shared and stored by COVIDSafe is encrypted.  It shares the phone's exact model in plaintext with other users, who store it alongside the corresponding Unique ID.
+In the unfortunate event that the “owner” of a TempID comes into contact with somebody who tests positive, the Singaporean government can reverse the process using their secret key, and get back the original plaintext, including the User ID.  They can then go back to the database and get the user’s contact details.
 
-The [Singaporean FAQ pages](https://TraceTogether.zendesk.com/hc/en-sg/articles/360043735693-What-data-is-collected-Are-you-able-to-see-my-personal-data-) explicitly mention that "In order to measure distance, information about the phone models and signal strength recorded is also shared, since different phone models transmit at different power," but we were unable to find any mention in COVIDSafe's Privacy policy, FAQ or PIA, though the code clearly does log this information.  This is unfortunate because it does not appear as part of what users consent to.
+The details of AES-256-GCM are mind-bogglingly complex to non-cryptographers.  But it doesn’t really matter, because cryptographers around the world have been poring over those details for over twenty years, trying to find ways to “break” AES-256-GCM.  Despite many years of trying, no one in the academic cryptography community has found a way to recover the plaintext from the ciphertext without the key.  It’s not completely beyond the realms of possibility that some intelligence agencies can, but even this is very doubtful.
 
-*Example of recorded logs added 27 Apr*
+So, while it’s not the way that we would have chosen to implement Temp/UniqueIDs if we were given the contract, the cryptography in the OpenTrace server code meets its design goals.  If they can keep the secret key secret, nobody other than the Singaporean government will be able to get people’s real identities from recorded TempIDs.  And, importantly, the only thing the Singaporean government needs to keep secret is the contents of the key.  Everything else can be disclosed.
 
-COVIDSafe records details about the messages it sends and receives, storing these in unencrypted form, though of course the UniqueID is already encrypted.  
+COVIDSafe’s client source code is largely a direct copy of OpenTrace; they could have chosen to copy the TempID generation code as well.  However, they may not have done so.
 
-An example from our recorded logs is here.  The first column is simply the record number, the next is the time in miliseconds. The random-looking number is the UniqueID.  The 6th and 7th columns list the sender and receiver respectively. These records show our phone exchanging UniqueIDs with an iPhone 6s (also ours). Record 16 shows the message received from the iPhone; record 17 logs the message our phone sent back.
+## UniqueIDs are longer than TempIDs
 
-| Num | Timestamp (ms) | ver | UniqueID | org | sender | receiver | signal strength | 
-| --- | -------------- | ------- | -------- | --- | ------ | -------- | --------------- |
-|16|1587904478384|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-40|
-|17|1587904521695|1| [RandomLookingNumEndingIn]8Vix= |AU_DTA| [Our phone's model] |iPhone 6s|-42|
+Unlike the Singaporean government, the Australian government has released no information about how UniqueIDs are generated.  We do know, however, that the UniqueIDs that are exchanged between COVIDSafe users are considerably longer than the TempIDs from OpenTrace -- they are 120 bytes long rather than 88.
 
-Our receiving phone changed its UniqueID every 2 hours, but the iPhone 6s sent the same UniqueID throughout the 8-hour period - a complete list of records is shown in the Appendix.
-We are not quite sure why the UniqueID did not refresh every 2 hours, though this is expected when the Internet connection is unavailable.  Similar long persistence of a UniqueID has also been recorded by [Jim Mussared](https://twitter.com/jim_mussared/status/1254574854826627074).
+As we have no information about the contents of UniqueIDs, all we can do is speculate about the difference.  Is the extra data simply “padding”?  Have the COVIDSafe developers chosen to encode extra information into unique IDs?  Have they chosen a different encryption scheme?  
 
-Note also that the app does not have the capacity to filter contacts based on their physical proximity or duration - it simply logs all the COVIDSafe messages it receives, leaving the determination of risk to the central server.
+We simply don’t know.
 
-The relevant code fragment, from the decompiled COVIDSafe App, is also shown in the Appendix.
+## Who will decrypt the data?
 
-Although it may seem innocuous, the exact phone model of a person's contacts could be extremely revealing information.  Suppose for example that a person  wishes to understand whether  another person whose phone they have access to has visited some particular mutual acquaintance.  The controlling person could read the (plaintext) logs of COVIDSafe and detect whether the phone models matched their hypothesis.  This becomes even easier if there are multiple people at the same meeting.  This sort of group re-identification could be possible in any situation in which one person had control over another's phone.  Although not very useful for suggesting a particular identity, it would be very valuable in confirming or refuting a theory of having met with a particular person.
+One possible reason for using different cryptography than OpenTrace is because of the split responsibilities in our federal system.  COVIDSafe will be operated by the federal government, while state governments are responsible for running contact tracing programs, and managing quarantines.
 
-In addition, the open broadcasting of the make and model of the phone presents a number of privacy and safety concerns.  The open nature of the broadcast allows anyone to write an app that listens for and records the information. As such, other apps can listen to and retrieve the data. There could be a number of uses of such information. For example, a thief could use the information to determine who has a high value phone worth stealing. Obviously, this is unlikely to happen in the short term, but cannot be discounted as a possibility. 
+We’ve been told that only state and territory health authorities will be able to decrypt the data. This may have been important for generating public trust given the commonwealth’s problematic history on data security and use.  But if the government has actually attempted to design this guarantee into the code, the OpenTrace TempID generation scheme would not work.  In OpenTrace, one central authority knows all the keys for decrypting all the TempIDs.  In Australia, key management could get complicated when people cross state borders.  
 
-The greater concern is the impact of broadcasting device parameters that do not change. In modern phones, the Bluetooth MAC address is randomised at intervals, often set as 15 minute intervals, to attempt to prevent devices from being tracked over time, which would reveal the trajectory of that device. If the same information is broadcast across multiple randomisation windows it negates the MAC address randomisation and could permit tracking beyond the window. MAC address randomisation is already [known to have weaknesses](https://arxiv.org/pdf/1904.10600.pdf). Anything that weakens or negates it entirely should be made clear to the end-user when they are consenting to usage of the app. 
+For example, suppose you live in Albury -- you’ll spend most of your time gathering UniqueIDs that are encrypted with a key known to the NSW government.  But if you cross the river and go grocery shopping in Wodonga, you collect some Victorian UniqueIDs (encrypted with a key known to the Victorian authorities).  If you contract COVID-19, you upload all the UniqueIDs you have received.  Who decrypts that data?
 
-By way of an example of how tracking could work, assume an organisation has Bluetooth scanners situated throughout a shopping centre. If there is only one device with a particular make and model in the shopping centre, then that device can be tracked across the entire shopping centre, since the make and model will act as unique ID in that context. Even if there are multiple devices with same make and model, they will still be able to be tracked whilst in non-overlapping sensor zones. They will even be able to be tracked within the same zone, provided that the Encrypted ID is not updated at exactly the same time on both devices. As such, it is likely that even devices with the same make and model will be liable to individual tracking over a much larger area and greater time than was intended in the Bluetooth standard. 
+The developers of the COVIDSafe App may well have developed a clever protocol for getting the right data decrypted by the right (state or territory) health authority.  They may have chosen a solution where any state health authority can decrypt any UniqueID.  Or there may actually be no technical guarantees at all that COVIDSafe data is unavailable to federal authorities.
 
+There are almost certainly sensible ways in which even the strongest state-based privacy requirements could have been met correctly, effectively, and efficiently, but there are also many, many opportunities for mistakes.  If the design and implementation of the server were public we could have a sensible discussion about those design choices, find any bugs, and ensure that we have a system that lived up to its security and privacy guarantees without compromising its contact tracing effectiveness.
 
-This problem could have been easily avoided if all the information being transmitted had been encrypted.
+## Where to now?
 
+The best time for the server code to be scrutinized was before the app went live.  But that time has now passed, and millions of Australians are exchanging UniqueIDs with any Bluetooth device that asks politely, with no guarantees that the UniqueIDs are indeed adequately protecting their privacy.
 
-
-## The missed opportunity to omit some contacts
-
-When a person tests positive for COVID-19, they upload all the UniqueIDs they have heard over the days they may have been infectious.  COVIDSafe does not give them the option of deleting or omitting some IDs before upload.
-
-This means that users consent to an all-or-nothing communication to the authorities about their contacts.  We do not see why this was necessary.  If they wish to help defeat COVID-19 by notifying strangers in a train or supermarket that they may be at risk, then they also need to share with government a detailed picture of their day's close contacts with family and friends, unless they have remembered to stop the app at those times.  
-
-## Conclusion
-
-Like TraceTogether, there are still serious privacy problems if we consider the central authority to be an adversary.  That authority, whether Amazon, the Australian government or whoever accesses the server, can 
-- recognise all your encryptedIDs if they are heard on Bluetooth devices as you go, 
-- recognise them on your phone if it acquires it, and 
-- learn your contacts if you test positive.
-
-These are probably still the most serious privacy concerns for some COVIDSafe users.  None of this has changed since TraceTogether.  
-
-For other users, the storing of unencrypted phone models in their logs may be the most serious concern, because it allows someone who acquires their phone to analyse their COVIDSafe logs and infer some information about who they have been near.  This doesn’t allow immediate identification, but might help to refute or support a pre-existing idea.  This, too, has not changed since TraceTogether, though the Singaporean FAQ makes it clearer than the Australian privacy policy.
-
-The changes made by the Australian authorities allow easier checking of each person’s regular usage of the app, but do not otherwise significantly increase the authority’s information compared to those existing issues.  The change to two-hourly encrypted IDs does, however, substantially increase the opportunities for third-party tracking based on Bluetooth, though this is still a risk in TraceTogether also.
+In our view, it would still be better for the server code, particularly the UniqueID generation mechanism, to be released as soon as possible.  If there are bugs, or a design that doesn’t live up to its privacy promises, it would be better for all of us if those flaws are rectified sooner rather than later -- and the easiest way for that to happen is to have many experts analyse the server code and responsibly disclose any issues they find.  
 
 ### Followup and reuse
 
 Comments, edits and suggestions are welcome - the easiest way to contact us is on Twitter 
-@chrisculnane
-@noneuclideangrl
 @rgmerk
+@noneuclideangrl
 @VTeagueAus
-
-or by email at [my first name] at thinkingcybersecurity.com 
 
 Earlier posts are [here](https://github.com/vteague/contactTracing/blob/master/blog/).
 
 You are welcome to quote or reprint this article as long as you acknowledge the original source.  Permanent link:
-[https://github.com/vteague/contactTracing/blob/master/blog/2020-04-27TracingTheChallenges.md](https://github.com/vteague/contactTracing/blob/master/blog/2020-04-27TracingTheChallenges.md).
-
-
-## Appendix
-### Code for producing logs
-
-These code fragments (decompiled from the version as at 26th April) show where COVID Safe records the exact model of the phone from which it has received and recorded the UniqueID.
-
-```
-public final void saveDataSaved(BluetoothDevice bluetoothDevice) {
-   Intrinsics.checkParameterIsNotNull(bluetoothDevice, "device");
-   byte[] bArr = this.writeDataPayload.get(bluetoothDevice.getAddress());
-   if (bArr != null) {
-      try {
-         WriteRequestPayload createReadRequestPayload = WriteRequestPayload.Companion.createReadRequestPayload(bArr);
-         Utils.INSTANCE.broadcastStreetPassReceived(this.this$0.getContext(), new ConnectionRecord(createReadRequestPayload.getV(), createReadRequestPayload.getMsg(), createReadRequestPayload.getOrg(), TracerApp.Companion.asPeripheralDevice(), new CentralDevice(createReadRequestPayload.getModelC(), bluetoothDevice.getAddress()), createReadRequestPayload.getRssi(), createReadRequestPayload.getTxPower()));
-      } catch (Throwable th) {
-         CentralLog.Companion companion = CentralLog.Companion;
-         String access$getTAG$p = this.this$0.TAG;
-         companion.e(access$getTAG$p, "Failed to save write payload - " + th.getMessage());
-      }
-      Utils utils = Utils.INSTANCE;
-      Context context = this.this$0.getContext();
-      String address = bluetoothDevice.getAddress();
-      Intrinsics.checkExpressionValueIsNotNull(address, "device.address");
-      utils.broadcastDeviceProcessed(context, address);
-      this.writeDataPayload.remove(bluetoothDevice.getAddress());
-      byte[] remove = this.readPayloadMap.remove(bluetoothDevice.getAddress());
-   }
-}
-```
-
-The asPeripheralDevice call inputs the model of the phone from whom the message was received. (Similar code is present in a method asCentralDevice in the instance the phone is sending rather than receiving a tag.)
-
-```
-public final PeripheralDevice asPeripheralDevice() {
-   String str = Build.MODEL;
-   Intrinsics.checkExpressionValueIsNotNull(str, "Build.MODEL");
-   return new PeripheralDevice(str, "SELF");
-}
-```
-### Logs recorded on our phone.
-
-These are the logs made by our CovidSafe app through an 8 hour period, listening to messages received from a CovidSafe app running on our iPhone 6.  As you can see, the iPhone 6's 
-UniqueID does not change through the 8 hour period.
-
-| Num | Timestamp (ms) | ver | UniqueID | org | sender | receiver | signal strength | 
-| --- | -------------- | ------- | -------- | --- | ------ | -------- | --------------- |
-40|1587907232545|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-32|
-46|1587907572325|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
-62|1587908486634|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-41|
-78|1587909389278|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-45|
-94|1587910289618|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-41|
-110|1587911183945|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
-126|1587912088167|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
-142|1587912994317|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
-158|1587913892653|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
-174|1587914755687|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-40|
-190|1587915690463|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
-206|1587916588241|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
-237|1587918357938|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
-253|1587919255372|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-41|
-269|1587920155379|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-39|
-285|1587921092812|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
-301|1587921955379|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
-317|1587922855652|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-40|
-333|1587923755462|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
-349|1587924664304|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
-365|1587925564366|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-41|
-381|1587926455461|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-40|
-397|1587927363888|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
-413|1587928272806|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-44|
-429|1587929188862|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
-445|1587930089617|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
-461|1587930955535|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-41|
-477|1587931855509|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
-496|1587932763228|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-41|
-519|1587933669588|1| [RandomLookingNumEndingIn]5K2l= |AU_DTA|iPhone 6s| [Our phone's model] |-43|
-
+[https://github.com/vteague/contactTracing/blob/master/blog/2020-05-14TheMissingServerCode.md](https://github.com/vteague/contactTracing/blob/master/blog/2020-05-14TheMissingServerCode.md).
 
