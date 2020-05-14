@@ -10,7 +10,7 @@ Within minutes of the COVIDSafe app being available from the Play Store, many pe
 
 But we weren’t restricted to just inspecting decompiled source code.  We were able to observe the app running, and view the data files the app creates in response to proximity to other phones.  We were also able to use [nRF Connect](https://www.nordicsemi.com/Software-and-tools/Development-Tools/nRF-Connect-for-mobile), a Bluetooth debugging app, to connect to phones running COVIDSafe and observe what they did.
 
-Combined with our existing knowledge of OpenTrace, the Singaporean contact tracing app, all of these things were quite sufficient for a small team of experts to find a number of serious privacy-related bugs in the COVIDSafe client -- and we haven’t found any more since the source code release.
+Combined with our existing knowledge of OpenTrace, the Singaporean contact tracing app, all of these things were quite sufficient for a small team of experts to find a number of serious privacy-related bugs in the COVIDSafe client.  [Many others did too](https://covidsafe.watch/). We haven’t found any more since the source code release.
 
 However, privacy and security risks of similar magnitude exist on the other side of the COVIDSafe system -- the server code running somewhere in AWS’s data center in Sydney.  In this article, we explain the key role of this server code, and the importance of proper scrutiny of it.
 
