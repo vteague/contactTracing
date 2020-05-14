@@ -26,7 +26,7 @@ It would not have been any more difficult to write an app in which UniqueIDs wer
 
 ## What’s in a TempID?
 
-As we’ve said, we don’t know for sure what’s in a COVIDSafe UniqueID, because the government has chosen not to release server code, or even some kind of architecture document explaining the details of how the system works.  However, we can have a look at the system upon which COVIDSafe is based: the open source OpenTrace app and server publicly released by the Singaporean government, and the [white paper](https://bluetrace.io/static/bluetrace_whitepaper-938063656596c104632def383eb33b3c.pdf) explaining how it works.  BlueTrace refers to “TempIDs” rather than “UniqueIDs”, so we’ll use that term to make clear which version of the app we’re talking about.
+As we’ve said, we don’t know for sure what’s in a COVIDSafe UniqueID, because the government has chosen not to release server code, or even some kind of architecture document explaining the details of how the system works.  However, we can have a look at the system upon which COVIDSafe is based: the open source OpenTrace app and server [publicly released](https://github.com/opentrace-community) by the Singaporean government, and the [white paper](https://bluetrace.io/static/bluetrace_whitepaper-938063656596c104632def383eb33b3c.pdf) explaining how it works.  BlueTrace refers to “TempIDs” rather than “UniqueIDs”, so we’ll use that term to make clear which version of the app we’re talking about.
 
 In OpenTrace, each app user has a User ID, which is directly linked in a database table somewhere to each registered user’s name and phone number.  When a phone requests a new TempID which it will use for a given time period, the server code:
 
