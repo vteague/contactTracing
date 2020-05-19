@@ -13,7 +13,8 @@ A/Prof (Adj.), Australian National University.
 
 The following security analysis was conducted via a static analysis of the released source code for the UK's COVID-19 Contact tracing Android app and an evaluation of high-level design documents. 
 
-An earlier version of this report was shared with the NCSC on 12 May 2020.  We would like to thank NCSC for their rapid response to our report and the constructive dialogue that has taken place since. We have refined the document to clarify a number of points and, where applicable, include a broad summary of their responses. A full response is available at: 
+An earlier version of this report was shared with the NCSC on 12 May 2020.  We would like to thank NCSC for their rapid response to our report and the constructive dialogue that has taken place since. We have refined the document to clarify a number of points and, where applicable, include a broad summary of their responses.  A full response is [now available](https://www.ncsc.gov.uk/blog-post/nhs-covid-19-app-security-two-weeks-on).
+ 
 
 This post is cross-posted at [StateOfIt.com](https://stateofit.com/UKContactTracing) and [https://github.com/vteague/contactTracing](https://github.com/vteague/contactTracing/blob/master/blog/2020-05-19UKContactTracing.md).
 
