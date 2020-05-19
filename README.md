@@ -4,9 +4,9 @@ The complete list is:
 
 - [Tweaking Tracetogether (30 Mar)](blog/2020-03-30TweakingTracetogether.md)
 - [Contact Tracing without Surveillance (7 Apr)](blog/2020-04-07ContactTracingWithoutSurveillance.md)
-- [Contact Tracing and Consent](blog/2020-04-23ContactTracingAndConsent.md)
-- [Tracing the Challenges of COVIDSafe](blog/2020-04-27TracingTheChallenges.md) by Chris Culnane, Eleanor McMurtry, Robert Merkel and me.
-- [The Missing Server Code and why it Matters](blog/2020-05-14TheMissingServerCode.md)  by Robert Merkel, Eleanor McMurtry and me. 
+- [Contact Tracing and Consent (23 Apr)](blog/2020-04-23ContactTracingAndConsent.md)
+- [Tracing the Challenges of COVIDSafe (27 Apr)](blog/2020-04-27TracingTheChallenges.md) by Chris Culnane, Eleanor McMurtry, Robert Merkel and me.
+- [The Missing Server Code and why it Matters (14 May)](blog/2020-05-14TheMissingServerCode.md)  by Robert Merkel, Eleanor McMurtry and me. 
 
 -----------------------
 
