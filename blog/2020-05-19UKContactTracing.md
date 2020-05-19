@@ -1,15 +1,3 @@
-This is the latest in a series of blog posts on automated contact tracing, especially (but not only) Australia's CovidSafe app.
-
-The complete list is:
-
-- [Tweaking Tracetogether (30 Mar)](blog/2020-03-30TweakingTracetogether.md)
-- [Contact Tracing without Surveillance (7 Apr)](blog/2020-04-07ContactTracingWithoutSurveillance.md)
-- [Contact Tracing and Consent (23 Apr)](blog/2020-04-23ContactTracingAndConsent.md)
-- [Tracing the Challenges of COVIDSafe (27 Apr)](blog/2020-04-27TracingTheChallenges.md) by Chris Culnane, Eleanor McMurtry, Robert Merkel and me.
-- [The Missing Server Code and why it Matters (14 May)](blog/2020-05-14TheMissingServerCode.md)  by Robert Merkel, Eleanor McMurtry and me. 
-
------------------------
-
 # Security analysis of the UK NHS COVID-19 App
 
 Dr Chris Culnane, [chris@culnane.org](mailto:chris@culnane.org),  
@@ -355,13 +343,3 @@ There are admirable parts of the implementation and once the already mentioned c
 
 Obtaining sufficient scale will require building trust and protecting privacy. The open availability of the source code, and the NCSC's positive interactions with security researchers, will go a long way towards this. However, the messaging around the app, and in particular suggestions of broadening the data collected, combined with insufficient legislative protections, a lack of siloing of the data, and no sunsetting of the data retention or usage, risk undermining the trust that has been earned.
 
-### Followup and reuse
-
-Comments, edits and suggestions are welcome - the easiest way to contact us is on Twitter   
-@chrisculnane   
-@VTeagueAus   
-or at the email addresses above.
-
-You are welcome to quote or reprint this article as long as you acknowledge the original source.  Permanent links:
-[StateOfIt.com](https://stateofit.com/UKContactTracing) and   
-[https://github.com/vteague/contactTracing/blob/master/blog/2020-05-19UKContactTracing.md](https://github.com/vteague/contactTracing/blob/master/blog/2020-05-19UKContactTracing.md).
