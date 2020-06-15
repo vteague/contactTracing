@@ -9,7 +9,7 @@ The complete list is:
 - [The Missing Server Code and why it Matters (14 May)](blog/2020-05-14TheMissingServerCode.md)  by Robert Merkel, Eleanor McMurtry and me. 
 - [Security Analysis of the UK's NHS Contact Tracing App](blog/2020-05-19UKContactTracing.md) by Chris Culnane and me.    
 
-This is part one of a three part series on COVIDSafe.
+This is part one of a three part series on COVIDSafe by Chris Culnane, Ben Frengley, Eleanor McMurtry, Jim Mussared, Yaakov Smith, me and Alwen Tiu:
 
 - [**COVIDSafe's new payload encryption scheme** - this post](blog/2020-06-15COVIDSafesNewEncryptionScheme.md)
 - [Issues with COVIDSafe's new encryption scheme - To appear]()
