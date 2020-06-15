@@ -248,7 +248,7 @@ In CBC mode, the ciphertext from the previous block is XORed with the plaintext 
 
 However, because the next step of the chain is just to XOR the output of the previous block with the next block of plaintext (i.e., exactly what was done with the IV), it's possible to combine these&mdash;if the IV is prepended to the plaintext and then the whole of that is encrypted with a null IV, the first step ends up the same single block encryption used to generate the IV, and the subsequent steps are the normal encryption of the plaintext. This results in an output consisting of the IV as the first block, and the encrypted plaintext as the following blocks. This means that to get the same ciphertext as the two-step way above, the first block (i.e., 16 bytes) of this output must be removed.
 
-This approach is shown in the following diagram: ![AES-CBC](AES-CBC.png)
+This approach is shown in the following diagram: ![AES-CBC](blog/AES-CBC.png)
 
 As a result of using this single-step approach, the COVIDSafe implementation is as follows:
 
