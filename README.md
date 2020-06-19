@@ -9,13 +9,16 @@ The complete list is:
 - [The Missing Server Code and why it Matters (14 May)](blog/2020-05-14TheMissingServerCode.md)  by Robert Merkel, Eleanor McMurtry and me. 
 - [Security Analysis of the UK's NHS Contact Tracing App](blog/2020-05-19UKContactTracing.md) by Chris Culnane and me.    
 
-This is part three of a three part series on COVIDSafe.
+This is part two of a three part series on COVIDSafe.
 
 - [COVIDSafe's new payload encryption scheme (15 June)](blog/2020-06-15COVIDSafesNewEncryptionScheme.md)
-- [Issues with COVIDSafe's new encryption scheme - this post](blog/2020-06-19IssueswithCOVIDSafesNewEncryptionScheme.md)
-- [**The current state of COVIDSafe (mid-June 2020)** - this post]()
+- [**Issues with COVIDSafe's new encryption scheme** - this post](blog/2020-06-19IssueswithCOVIDSafesNewEncryptionScheme.md)
+- [The current state of COVIDSafe (mid-June 2020) - To appear]()
 
 ---------------------------------------
+
+# Issues fixed in COVIDSafe today
+## Why every COVIDSafe user should upgrade immediately
 
 Chris Culnane: [stateofit.com](https://stateofit.com) / [@chrisculnane](https://twitter.com/chrisculnane)   
 Ben Frengley: ben.frengley [at] gmail.com / [@bgf_nz](https://twitter.com/bgf_nz)  
@@ -25,163 +28,126 @@ Yaakov Smith: [yaakov.online](https://yaakov.online) / [@yaakov_h](https://twitt
 Vanessa Teague: [ThinkingCybersecurity Pty Ltd](https://www.thinkingcybersecurity.com) / [@VTeagueAus](https://twitter.com/vteagueaus)   
 Alwen Tiu: The Australian National University alwen.tiu [at] anu.edu.au
 
-The new encryption scheme and major bug-fixes were described in the previous posts. This post attempts to summarise the known outstanding issues with COVIDSafe and provides some recommendations for users on understanding the risks, then some recommendations for government on where to go from here.
+The new encryption scheme was described in the [previous post](blog/2020-06-15COVIDSafesNewEncryptionScheme.md). Here we explain several issues with its implementation that were corrected in the most recent version.  We'll follow up with a third post, describing remaining issues.  The release of this post has been delayed, because the new version introduced a significant cryptographic bug in the Android app, which has now been corrected in the most recent version (1.0.28).
+Today's iPhone update (1.6) also contains critical bug fixes.    
 
-# The current state of COVIDSafe (mid-June 2020): Outstanding privacy issues
+**All COVIDSafe users, both iPhone and Android, should upgrade immediately.**
 
-1. Users are encouraged to reset their phone name to something that is not unique, but there is no guidance, so many users are more likely to end up with a unique name than they would have been if they had stuck with the default.
+The main bug fixes are:
 
-1. Although the app's ephemeral public key changes frequently, it is possible to observe this change while connected to the phone, which allows for [long-term continuous tracking](#PhoneTracking) despite the change.
+1. [A bug in the way COVIDSafe reads Bluetooth messages on iPhones](#iPhoneToiPhoneBug) means that the new, longer, encrypted messages are sometimes garbled. This means that some iPhone-to-iPhone contacts will not be recorded, though it is possible for the same phones to connect again in a different way that does record properly.
 
-1. Successive uses of the same key within the 7.5 minute window are distinguished by a counter sent in plaintext. [Reading this counter leaks some information about the user's recent past](#Counter). For example, if it isn't zero then they haven't been alone.
+1. A patch for CVE-2020-14292, a vulnerability allowing for long-term tracking of Android devices.
 
-1. The app does not seem to automatically update correctly.
+1. COVIDSafe on iPhones can now download a new TempID when the phone is locked.
 
-## Phone name (e.g. "Name's iPhone")
+1. Encryption was implemented in a manner that did not prevent [interference between multiple threads](#EncryptionBug). This sometimes crashed the app, and could possibly lead to garbled encryptions or leaked information. This has now been patched.
 
-As a result of operating as a BLE GATT server, the system provides a default service that allows any connected device to obtain the device's name. This value is user-configurable, and often defaults to the device model (i.e. "Samsung Galaxy G8"), but for usability and convenience reasons, some users will customise this value. It's useful to do so because this is what is shown in, for example, car stereo systems.
+Apart from the last issue (now patched), these problems are probably not show-stoppers for most Australians in most circumstances. However, users should be aware of them when they consider whether to install the app and whether to leave Bluetooth on in particular situations.
 
-Regardless of what the value is (although including the owner's name is the worst case), this value serves as a unique identifier for the phone, especially if the user has customised the value *in any way*. The three categories are:
-* Default (phone model)  (likely to be unique in many scenarios)
-* Anything involving the owner's name  (unique, gives away name)
-* Any other value  (extremely likely to be unique)
+<a name="iPhoneToiPhoneBug"></a>
+## COVIDSafe v2 doesn't log iPhone-to-iPhone contacts as intended
+The Bluetooth messages sent by COVIDSafe v2 are much longer than those of v1.  A pre-existing bug causes these to be garbled in some iPhone-to-iPhone transactions, significantly reducing the reliability of contact logging.
 
-As described in the first post, as for the phone model, the phone name can be used in conjunction with other identifiers such as the MAC address or the tracing payload to enable long-term tracking and re-identification of a device. This was first raised to the DTA within days of the launch of COVIDSafe.
+This issue was discovered by John Evershed of ProjectComputing; the details are copied here with his permission. The issue affects all iPhone-to-iPhone exchanges, regardless of whether the phone is locked or unlocked. (This should not be confused with the [TempID download problem](https://docs.google.com/document/d/1dsSxC48cJ91X17PoOybpun1U163YDxxL0CDk3kmAHvY/preview) discovered by Richard Nelson, which affects COVIDSafe bluetooth messages that should be sent from a locked iPhone, regardless of the recipient, and has been patched in the most recent version.)
 
-In v1.0.18, COVIDSafe implemented a change that aims to partially mitigate this, however it is flawed in a number of ways.
+The size of the payload exchanged by COVIDSafe far exceeds the default maximum transmission unit (MTU) used by Bluetooth Low Energy (BLE)'s ATT protocol (23 bytes). However, there are two provisions in BLE to allow for the exchange of larger payloads:
 
-During registration, the user is now shown the following screen:
+* The central device can initiate negotiation of a higher MTU (up to 512 bytes).
 
-```
-The current name of your device is %s.
+* Reading and writing of a GATT characteristic value can be done in chunks. (This is called a "long" read or write, in which the offset of the chunk is included in the transmitted data.)
 
-Other Bluetooth® devices around you will be able to see this name. You may like to consider making the device name anonymous.
+The Android version of COVIDSafe will always attempt to negotiate a 512 byte MTU. iOS does not provide an equivalent API and will automatically [negotiate to use 185 bytes on iOS 10.0 and higher](https://github.com/chrisc11/ble-guides/blob/master/ios-mtu.md).
 
-New device name: "Android phone"
+The version 1 payload was slightly smaller than 185 bytes, so "long" reads and writes never needed to be used. However, the new version 2 payload, as described in the previous post, is typically around 350 bytes.
 
-[Change and continue] [Skip and keep as it is]
-```
+When an iPhone app in peripheral role (i.e. a GATT server) receives a read for a characteristic value, it is given the offset of the read, and is expected to only return the part of the value starting at that offset. This is described in the [Apple documentation](https://developer.apple.com/library/archive/documentation/NetworkingInternetWeb/Conceptual/CoreBluetooth_concepts/PerformingCommonPeripheralRoleTasks/PerformingCommonPeripheralRoleTasks.html#//apple_ref/doc/uid/TP40013257-CH4-SW6) for CoreBluetooth. However, COVIDSafe for iOS ignores the offset, and always attempts to return the full payload.
 
-The textbox is pre-populated with the text "Android phone". The goal here appears to be that now that the model name is hidden, if every user changes their phone name to the same thing, then the phone can no longer be identified.
+The result is that when an iPhone in central role attempts to read this value, it will instead see approximately the first 180 bytes of the payload repeated two or three times, rather than the full payload. The central will then be unable to decode this as a valid JSON message and therefore ignore it.
 
-However:
+This issue has been verified in several different ways:
 
-* This flow only applies to new users, not users upgrading from earlier versions.
-* If a user changes this value to anything other than the default "Android phone" then their device will likely be uniquely identifiable.  In particular, user-chosen input is much more likely to be unique than the defaults that come with most Android devices (e.g. "Samsung Galaxy Tab A").
-* The instruction to "make the device name anonymous" is not clear.
-* This was not implemented on iPhone.
-* Changing the device name is bad for usability as this name is shown, for example, in a car stereo or any other location where the device is paired.
+ 1. A developer build of the COVIDSafe app (using the v1.5 source code published to GitHub) will log the failure to decode the JSON, and the log message shows the payload containing the repeated fragments.
+ 
+ 1. Developer builds of the COVIDSafe app (using the v1.5 source code published to GitHub) have a debug screen that allows scanning or advertising modes to be individually enabled or disabled. Using a developer build on two iPhones, one with only scanning enabled and one with only advertising enabled, the advertising device records the details of the scanning device, but the scanning device does not record the details of the advertising device.
+ 
+ 1. A test program running on a PC that attempts to connect to the iPhone, negotiate a 100 byte MTU, and then issue long reads will always see the same response regardless of the offset (the first 100 bytes of the payload). The same test connecting to an Android will see the the correct responses.
 
-**TODO** (is this too much?) It is worth nothing that an app using the Exposure Notification API from Apple & Google would not have this issue with the phone model or name being exposed.
+The issue does not exist when an Android device is involved, because the Android device in the central role will negotiate a 512 byte MTU, and in the peripheral role it correctly handles the offset reads.
 
+It's still possible, however, that encounters can be logged on iPhone, as the protocol is bi-directional and both phones can perform both roles. As described above, the peripheral-to-central payload will be lost, but the central-to-peripheral payload should still be transmitted, allowing the peripheral phone to record an encounter. If the previously-peripheral phone is subsequently able to connect as a central, then the payload can be successfully exchanged in the opposite direction.
 
+*Summary:* this bug significantly reduces the reliability of encounter logging.
 
-<a name="PhoneTracking"></a>
-## Continuous tracking of phones
+*Fixing the problem:* Fortunately this issue is easy to fix, and the offset can be applied in `PeripheralController.swift`'s `didReceiveRead` method when returning the payload. It is remarkable that this issue was not discovered during development and testing, as every single payload transmitted from a peripheral iPhone to a central iPhone is affected, and every single time the central would have logged an error saying that it could not decode the JSON.
 
-### Background on MAC address and TempID-based phone tracking
+*Status:* This has been corrected in v1.6.
 
-Modern phones rotate their MAC address (about every 10-15 minutes) to evade tracking.  Even an attacker who connects to them continuously (via a GATT service) doesn't see their new MAC.  It has been explained previously that the continuous TempIDs (whether they last 2 hours or 15 mins) undermine this, because an attacker can observe a phone frequently (say every 5 mins), read both its MAC and its TempID, and thus learn the old-MAC->new-MAC transition when it observes an overlapping TempID appearing with the refreshed MAC.  An overview of MAC-related privacy problems can be found [here](https://docs.google.com/document/d/17sVyBIG5CqhF9XtuEfeG2MfYsFNXuV4yxp3BERDTJoI).
+## CVE-2020-12856
 
-### Problem summary
-This attack doesn't even need to observe the MAC: since COVIDSafe allows you to see the ephemeral key changing as you are connected, an attacker doesn't need to use the inbuilt MAC to link successive ephemeral keys and hence track the phone.
+COVIDSafe (Android) v1.0.17 and earlier contain a vulnerability, tracked using CVE ID CVE-2020-12856, that could allow an attacker to __bond__ silently with an Android phone running a vulnerable version of the app. 
+The bonding process involves exchanges of permanent identifiers of the victim phone: the identity address of the bluetooth device in the phone and a cryptographic key called Identity Resolving Key (IRK). 
+Possession of the identity address (sometimes also called, confusingly, the public address, in Bluetooth lexicon) would allow the attacker to detect the presence of the victim's phone, as long as Bluetooth is turned on, without the phone needing to run the COVIDSafe app. It also allows the attacker to launch further attacks leveraging on existing Bluetooth vulnerabilities.
 
-This problem was present in the earlier version of COVIDSafe.  Version 2 doesn't make it any worse, but the problem undermines the main improvement of Version 2 if the attacker can connect to the phone continuously or frequently.
+Possession of the IRK would allow an attacker to reverse a (resolvable) random Bluetooth address back to the real identity address, so if the attacker can obtain a record of Bluetooth addresses from a third party (for example, logs captured by Bluetooth traffic monitors), the attacker will be able to track movements of a particular vulnerable device without needing to interact with the device.
 
-### Continuous tracking of iPhones
-We found that if a central device connects to an iPhone with the COVIDSafe app running in the foreground, the central device can keep the connection alive by issuing repeated read operations. Together with the fact that the payload changes every time a read is performed, this provides an easy way to perform a continuous tracking of an iPhone running the app while the device is within Bluetooth range of the phone. An attacker can simply connect to the iPhone and read the payload repeatedly without disconnecting. The attacker will be able to observe the key rotation every 7.5 minutes, since the ephemeral public key is included in the payload. This allows the attacker to link two consecutive ephemeral keys generated by the COVIDSafe app in the iPhone.
+This issue was reported to DTA on May 5th, 2020, and has been fixed since v.1.0.18.
+Details of the issue are available [here.](https://github.com/alwentiu/COVIDSafe-CVE-2020-12856)
 
-A more efficient attack would be to disconnect once a key rotation is detected, and reconnect before the expiry time of the key (which is 7.5 minutes from the time the change is detected).
 
-Multiple central devices can be used to track an iPhone in areas larger than the Bluetooth range. For example, suppose the attacker wants to track the movement of a phone across two locations A and B. The attacker plants two central devices, one in each location; let's call them Central A and Central B. Central A will connect to phones in location A and continuously read their payloads, recording their ephemeral public keys. Central B will do the same for the phones in location B. Both central devices share their database of ephemeral keys with each other (e.g. via Wi-Fi or cellular network). If a phone moves from location A to B (disconnecting from Central A), Central B will detect the presence of a new device and perform a read to extract the ephemeral public key, which can be checked against the database of keys recorded by central A. If the new device is the same as the one leaving location A, its current ephemeral public key will likely be in that database.
+## CVE-2020-14292 
 
-There's a chance that as the phone disconnects from Central A, it changes its ephemeral public key before connecting to Central B (e.g. if the key expires before the phone arrives at location B). This can be reduced by having some overlap in the Bluetooth range of Central A and B, so there will be no gap in the transition from one location to another.
+A vulnerability similar to that reported in CVE-2020-12856 has recently been identified for the Android version of COVIDSafe v1.0.21 and earlier. This vulnerability allows an attacker to obtain the Bluetooth identity address, and in some cases, to perform a silent bonding. 
+This vulnerability has been reported to DTA on June 2nd, 2020, along with a suggestion for a fix.
+That suggestion seems to have been incorporated in version 1.0.28, but we have not yet confirmed whether it fixes the vulnerability. 
+This vulnerability is now tracked using CVE ID CVE-2020-14292. Details will be made public once the fix has been confirmed. 
 
-Note that it is not possible to observe the Bluetooth random MAC address rotation while being connected to the phone, so being able to connect to a GATT service indefinitely does not automatically grant the ability to perform continuous tracking. The issue here is caused by the app leaking information about the key rotation while a central device is connected.
+## Locked iPhones cannot receive new TempIDs
 
-### Continuous tracking of Android phones
-The Android version of COVIDSafe implements a read cache per device, so performing repeated reads in a connection will result in the same payload being returned. This read cache is cleared if a central writes a payload to the peripheral after reading a payload from it. So by performing a read followed by a write, we can force the read payload to be re-computed, and we are back in the same situation as with iPhones, allowing continuous tracking.  
+This was discovered by Richard Nelson, and is [described in detail here](https://docs.google.com/document/d/1dsSxC48cJ91X17PoOybpun1U163YDxxL0CDk3kmAHvY/preview).
 
-*Summary:* The fact that a connected attacker can observe the ephemeral key changing allows the attacker to link successive ephemeral keys, and hence track the phone for as long as it is within range.
+During registration, a JWT (JSON web token) is given to the app by the server. This is the authentication key that the app uses for any subsequent request to the server, such as downloading a new TempID or uploading the encounter database.
 
-*Fixing the problem:* Richard Nelson's alternative that generates a [fresh ECDH key every time](https://patch-diff.githubusercontent.com/raw/wabzqem/mobile-ios/pull/2.patch) solves this problem, at the expense of increased battery use.  While the attacker can still see the ephemeral key change, it can't disconnect and then look for the same key upon reconnection.  Alternatively, the problem could be addressed by ensuring that the app allows only one exchange per connection; this is fairly straightforward to implement. 
+This JWT is stored in the device keychain, which is a secure key storage facility provided by iOS. However, for security reasons and to prevent apps using these keys without user interaction, the default behavior on iOS is that an app cannot access the keychain while the device is locked. COVIDSafe does not request this permission, and so if the device attempts to fetch a new TempID while the device is locked it will be unable to access the JWT.
 
+The result is that if a device has been locked for more than 1 hour (on average), then it will be unable to generate new tracing payloads to send to other devices. This means that the user of the phone cannot ever be notified of a contact with an infected individual.
 
+The reverse direction is still possible, i.e. the phone can still receive payloads from other devices, meaning that if this user becomes infected, other users will be notified. However, due to the MTU issue described in the [previous post](Post2.md), this doesn't work reliably for iPhone to iPhone connections.
 
-<a name="Counter"></a>
-## Implications of a plaintext counter
-The plaintext counter used as part of the payload encryption leaks some information.
-This was observed independently by us and by Robin Doherty at ThoughtWorks.
+*Summary:* The bug prevents iPhones from downloading a new TempID when locked, hence preventing them from sending COVIDSafe bluetooth messages to other phones.
 
-A crucial technical detail is that every time a message is encrypted, some extra data called an *initialisation vector* (IV) must be used for the encryption. For the operation to be secure, this IV must be unique every time the same key is used to encrypt a different message. The app achieves this by counting the number of times the ephemeral key has been used, and using this 2-byte counter to generate the IV. This counter is sent in plaintext with the encrypted message over Bluetooth.  The ephemeral key is refreshed and the counter is reset to zero when 7.5 minutes have elapsed, a new TempID is downloaded, or the counter reaches 65535 (the highest number 2 bytes can store).
+*Fixing the problem:* Fortunately there's a simple fix, which is to set this permission on the keychain item to allow it to be accessed when the device is locked. The need for this is explicitly called out in [the documentation](https://github.com/evgenyneu/keychain-swift#keychain-item-access) for KeychainSwift (the library that COVIDSafe uses to access the Keychain), and even includes sample code. It's somewhat remarkable that this issue wasn't discovered during testing as it happens reliably if the TempID fetch happens while the phone is locked, and a log message is printed out.
 
-This counter leaks some information about the user's recent past. Someone who has had no contacts through the last 7.5 minutes will present a zero counter to the next person they interact with; a person who presents a nonzero counter has interacted with others since their last refresh.  The converse argument, of course, does not work, because someone who presents a zero counter on one hand may have had no interactions recently, or on the other hand may have refreshed their ephemeral key recently.
+*Status:* This has been corrected in v1.6.  All iPhone users should upgrade immediately.
 
-Different individuals' refresh times are not synchronised, and hence constitute a fact about a user that persists past the 7.5 minute window.  Although this information resets during any period in which the person is not in contact with others, there are circumstances in which it would persist for some time.
+<a name="EncryptionBug"></a>
+## Critical Concurrency Bug in encryption for COVIDSafe on Android
 
-This information might be sufficient in some contexts to infer meaningful information about people. Although probably not a show-stopper for most COVIDSafe users, these scenarios indicate that the use of COVIDSafe does leak some information to others, which may be important for some users.
+COVIDSafe's [encryption code](https://github.com/AU-COVIDSafe/mobile-android/blob/05a2ca94a6e858ba751b6069151386038b776943/app/src/main/java/au/gov/health/covidsafe/streetpass/persistence/Encryption.kt) v1.0.18 contains a critical concurrency bug that could result in an exception or possible corrupted encryptions. The root cause is sharing a single Cipher instance across different threads, without appropriate synchronization.
+This bug affects Android versions 1.0.18 to 1.0.27, and has been corrected in the current version (1.0.28). It does not affect the iPhone versions, which perform encryption differently (and, as far as we can tell, correctly).
 
-### Using the counter to contradict a story of having been alone
+The issue is due to the implementation of the [encryptPayload function](Post1.md#EncryptPayloadFunction). This function is not synchronised and could be called from multiple threads including:
 
-Suppose Alice leaves the office for 10 minutes and tells Bob not to interact with anyone during that time.  When she returns, she reads Bob's COVIDSafeApp counter. If it isn't zero, she knows that Bob has disobeyed her instruction.
+* StreetPassReceiver declared in `app/src/main/java/au/gov/health/covidsafe/services/BluetoothMonitoringService.kt`
+* gattServerCallback declared in `app/src/main/java/au/gov/health/covidsafe/bluetooth/gatt/GattServer.kt`
+* StreetPassGattCallback declared in `app/src/main/java/au/gov/health/covidsafe/streetpass/StreetPassWorker.kt`
+* StreetPassRecordDatabase declared in `app/src/main/java/au/gov/health/covidsafe/streetpass/persistence/StreetPassRecordDatabase.kt`
 
-### Using counter refresh time as a persistent identifier
+As a result, the Cipher object (shared between threads) can be either in an invalid state (e.g. uninitialised) or could produce corrupt encryptions if two calls are made to it concurrently. For example, a HMAC could be mismatched with the wrong AES-CBC blocks. We believe this failure could occur silently without the user being alerted, and may only become apparent when invalid encryptions fail decryption by the authorities. This would mean that users exposed to COVID-19 may not be notified, because their TempIDs cannot be decrypted. Corrupted encryptions could also leak information and allow some decryption without the key, but since this would reveal at most the information that had been available in plaintext in version 1, it is hard to argue that this is not a disaster. It could also cause the app to crash -- we are not sure whether it reliably restarts in this situation, or remains non-operational.
 
-Consider the following scenario:
+The fix for this bug is extremely simple: symCipher should be instantiated inside `encryptPayload`. The computational cost of instantiating it is low in comparison to initialising it, which is performed every time anyway. Alternatively, the `encryptPayload` function could be synchronised, however, this could cause a deterioration in performance as it will force all Bluetooth interactions to synchronise on the `encryptPayload` function.
 
-Alice and Bob have lunch together in a cafe. Suppose the cafe has some way to identify which is Bob and which is Alice. A Bluetooth receiver in the cafe reads Alice and Bob's COVIDSafe App messages and notes the times at which they refresh their ephemeral keys. For example, suppose Alice refreshes at 13:05:00 and Bob at 13:04:00. Then Alice and Bob go on a walk together, for half an hour, leaving their COVIDSafe apps running. When they return to the cafe their reset times make them immediately distinguishable, because Alice's reset time will be an integer multiple of 7.5 minutes after 13:05:00 and Bob's after 13:04:00. Half an hour is a multiple of 7.5 minutes, so in our example a refresh at 13:35:00 could be Alice; a refresh at 13:34:00 could be Bob, and a refresh at 15:30:00 could be neither.
+*Status:* This was disclosed to DTA and ASD in early June. It affected Android versions 1.0.18 to 1.0.27 of COVIDSafe and has been patched in the most recent version.  Android users of COVIDSafe should upgrade to 1.0.28 immediately, which you may need to do manually because automatic updates do not seem to be working reliably.  The iPhone version is not affected by this bug.
 
-This works in the somewhat-contrived scenario described here, but breaks down if the targeted person is out of range of others' Bluetooth beacons for a time, because the 7.5-minutely reset occurs only when others are in range. It also breaks down if the reset time is disturbed for some other reason, such as downloading a new TempID.
+## Acknowledgements
 
-Assuming an accuracy of about 200ms in estimating refresh time, this style of re-identification attack could distinguish about 7.5 * 5 * 60, i.e. about 2000 different values. This is still an improvement over COVIDSafe v1, in which the same TempID was used for 2 hours, but still may expose enough consistent identifying information for tracking over the same two hours.
+We'd like to thank the DTA and the Australian Signals Directorate for their prompt attention to the encryption issue, and encourage the DTA to address the Bluetooth tracking problem and the iPhone logging failure urgently.
 
-### Using counter values to infer proximity information
+We'd also like to thank the large and active community of Australian techies who have examined, discussed, and tried to correct the code.
 
-I invite Alice, Bob, and Charlie to a job interview. When they arrive, I sit each of them in a separate isolation room for 10 minutes. When the 10 minutes is up, I go and release them, bringing my COVIDSafe App-running phone. This causes them all to zero their counter at a time of my choosing. Next, I let them all go and play outside together, in a large open space with no other devices. I promise I will not watch what they do. After 5 minutes, I call them back in and engage each of them in another COVIDSafe exchange with my phone. I note each of their counters. Even if I haven't watched them, I can infer who was close to whom through that time (at least, who was within Bluetooth range) - I simply look at whose counters have incremented how much, and this tells me exactly how many pings have been exchanged between each pair A-B, B-C, C-A.
+### Followup and reuse
 
-For example if Alice has sent 7 messages, 5 to Bob and 2 to Charlie, I know that Alice and Bob were near each other for longer than Alice was near Charlie, and that Bob and Charlie didn't interact at all.  (Obviously this assumes some predictability in Bluetooth-based proximity measurement.)
+Comments, edits, suggestions and pull requests are welcome.
 
-*Summary:* the plaintext counter leaks some information about the recent contact history of COVIDSafe users, which might be important to certain users in certain circumstances.
-
-*Fixing the problem:* use an encryption method, such as AES-GCM, that doesn't need a plaintext counter.
-
-## The app does not automatically update
-
-**TODO** include log from Yaakov.
-
-## Recommendations for users
-
-Given that:
-* There is not currently a version available that works correctly in the background on iOS.
-* The..
-**TODO**  VT: I think maybe we just leave this out.  There isn't really much to be said.
-
-
-## Summary and recommendations
-The new cryptographic protocol solves some pre-existing privacy problems, leaves some others unchanged, and introduces some new ones.
-
-### For government
-
-Building on TraceTogether was a reasonable choice when it was the only available option, but serious consideration should now be given to adopting the Exposure Notification API from Apple and Google. There is a genuine and profound difference between a centralised and a decentralised model.  I (VT) have explained [in a previous
-blog post](https://github.com/vteague/contactTracing/blob/master/blog/2020-04-07ContactTracingWithoutSurveillance.md) that I would vote for a decentralised model because I feel the risks of abuse or leakage of the centralised contact database outweigh its potential benefits for epidemiology etc, especially given that some epidemiological information is still available from human recall.  However, there are solid arguments on both sides.
-
-COVIDSafe suffers from several bugs that are unrelated to profound questions about centralisation, but undermine both reliability and privacy. These are being gradually addressed, but new ones are being gradually introduced at about the same rate.  The Google/Apple API would have huge practical advantages for working more reliably and having fewer unnoticed bugs, regardless of the political questions.
-
-The remaining differences between the most recent version of COVIDSafe and the probable behaviour of the Google-Apple API are:
-
-- Failure to download a new TempID to a locked iPhone, and hence to send any contact messages from then on.
-
-- Failure to log at least some iPhone-to-iPhone contacts.
-
-- The existence of a centralised data store of each infected person's contacts.  Depending on your risk model, this is a strong argument for one solution or the other.
-
-- The opportunity for AWS to collect 2-hourly metadata on users.  (Again, a bug or a feature depending on your perspective.)
-
-- The opportunity for longer-term tracking as a result of either continuing Bluetooth bugs in COVIDSafe, or the (probably unavoidable) difficulty of synchronising with the MAC rotation.  This is a significant practical privacy advantage of the Google-Apple API.
-
-- Backwards compatibility with old phones.  We don't know how much difference this makes in practice, since in this case (as in all other cases), reliability really matters.  If it isn't running reliably then it may not be as much of an advantage as it seems, but of course we don't know.
-
-It is worth considering whether the significantly better (though not perfect) privacy properties of the Google-Apple solution might result in greater trust and higher uptake, and hence better disease control.  Obviously we won't really know unless we try, but we may get information soon from countries that have adopted a decentralised solution.
-
-We strongly recommend against rolling out another new cryptographic protocol without a period of open review to avoid introducing further problems, or
-indeed persisting with the current protocol without genuine open review of the server side and urgent correction of the app's existing bugs.
+You are welcome to quote or reprint this article as long as you acknowledge the original source.  Permanent link:
+[https://github.com/vteague/contactTracing/blob/master/blog/2020-06-15COVIDSafesNewEncryptionScheme.md](https://github.com/vteague/contactTracing/blob/master/blog/2020-06-19IssueswithCOVIDSafesNewEncryptionScheme.md).
