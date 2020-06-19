@@ -43,8 +43,6 @@ The main bug fixes are:
 
 1. Encryption was implemented in a manner that did not prevent [interference between multiple threads](#EncryptionBug). This sometimes crashed the app, and could possibly lead to garbled encryptions or leaked information. This has now been patched.
 
-Apart from the last issue (now patched), these problems are probably not show-stoppers for most Australians in most circumstances. However, users should be aware of them when they consider whether to install the app and whether to leave Bluetooth on in particular situations.
-
 <a name="iPhoneToiPhoneBug"></a>
 ## COVIDSafe v2 doesn't log iPhone-to-iPhone contacts as intended
 The Bluetooth messages sent by COVIDSafe v2 are much longer than those of v1.  A pre-existing bug causes these to be garbled in some iPhone-to-iPhone transactions, significantly reducing the reliability of contact logging.
