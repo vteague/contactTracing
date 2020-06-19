@@ -12,7 +12,7 @@ The complete list is:
 This is part one of a three part series on COVIDSafe by Chris Culnane, Ben Frengley, Eleanor McMurtry, Jim Mussared, Yaakov Smith, me and Alwen Tiu:
 
 - [**COVIDSafe's new payload encryption scheme** - this post](blog/2020-06-15COVIDSafesNewEncryptionScheme.md)
-- [Issues with COVIDSafe's new encryption scheme - To appear]()
+- [Issues with COVIDSafe's new encryption scheme](2020-06-19IssueswithCOVIDSafesNewEncryptionScheme.md)
 - [The current state of COVIDSafe (mid-June 2020) - To appear]()
 
 ---------------------------------------
