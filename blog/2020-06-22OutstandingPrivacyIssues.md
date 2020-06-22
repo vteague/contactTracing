@@ -12,7 +12,7 @@ The complete list is:
 This is part three of a three part series on COVIDSafe.
 
 - [COVIDSafe's new payload encryption scheme (15 June)](2020-06-15COVIDSafesNewEncryptionScheme.md)
-- [Issues with COVIDSafe's new encryption scheme - this post](2020-06-19IssueswithCOVIDSafesNewEncryptionScheme.md)
+- [Issues with COVIDSafe's new encryption scheme (19 June)](2020-06-19IssueswithCOVIDSafesNewEncryptionScheme.md)
 - [**The current state of COVIDSafe (mid-June 2020)** - this post](2020-06-22OutstandingPrivacyIssues.md)
 
 ---------------------------------------
