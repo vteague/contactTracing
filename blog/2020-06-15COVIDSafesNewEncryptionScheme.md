@@ -2,16 +2,16 @@ This is the latest in a series of blog posts on automated contact tracing, espec
 
 The complete list is:
 
-- [Tweaking Tracetogether (30 Mar)](blog/2020-03-30TweakingTracetogether.md)
-- [Contact Tracing without Surveillance (7 Apr)](blog/2020-04-07ContactTracingWithoutSurveillance.md)
-- [Contact Tracing and Consent (23 Apr)](blog/2020-04-23ContactTracingAndConsent.md)
-- [Tracing the Challenges of COVIDSafe (27 Apr)](blog/2020-04-27TracingTheChallenges.md) by Chris Culnane, Eleanor McMurtry, Robert Merkel and me.
-- [The Missing Server Code and why it Matters (14 May)](blog/2020-05-14TheMissingServerCode.md)  by Robert Merkel, Eleanor McMurtry and me. 
-- [Security Analysis of the UK's NHS Contact Tracing App](blog/2020-05-19UKContactTracing.md) by Chris Culnane and me.    
+- [Tweaking Tracetogether (30 Mar)](2020-03-30TweakingTracetogether.md)
+- [Contact Tracing without Surveillance (7 Apr)](2020-04-07ContactTracingWithoutSurveillance.md)
+- [Contact Tracing and Consent (23 Apr)](2020-04-23ContactTracingAndConsent.md)
+- [Tracing the Challenges of COVIDSafe (27 Apr)](2020-04-27TracingTheChallenges.md) by Chris Culnane, Eleanor McMurtry, Robert Merkel and me.
+- [The Missing Server Code and why it Matters (14 May)](2020-05-14TheMissingServerCode.md)  by Robert Merkel, Eleanor McMurtry and me. 
+- [Security Analysis of the UK's NHS Contact Tracing App](2020-05-19UKContactTracing.md) by Chris Culnane and me.    
 
 This is part one of a three part series on COVIDSafe by Chris Culnane, Ben Frengley, Eleanor McMurtry, Jim Mussared, Yaakov Smith, me and Alwen Tiu:
 
-- [**COVIDSafe's new payload encryption scheme** - this post](blog/2020-06-15COVIDSafesNewEncryptionScheme.md)
+- [**COVIDSafe's new payload encryption scheme** - this post](2020-06-15COVIDSafesNewEncryptionScheme.md)
 - [Issues with COVIDSafe's new encryption scheme](2020-06-19IssueswithCOVIDSafesNewEncryptionScheme.md)
 - [The current state of COVIDSafe (mid-June 2020) - To appear]()
 
