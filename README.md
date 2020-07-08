@@ -26,7 +26,7 @@ COVIDSafe was launched on April 27th, 2020. Several volunteers from the Australi
 
 Many issues have been found as well as recommendations for how to fix them, and some of these fixes have dramatically improved the effectiveness of the COVIDSafe app. In addition, several of these issues have been found and reported in contact tracing apps used in other countries.
 
-Most, but not all, of these issues have been fixed.  However, due to a quirk in the way that COVIDSafe works, it is not clear that users are actually receiving automatic updates to the app.
+Most, but not all, of these issues have been fixed.  However, due to a quirk in the way that COVIDSafe works, it is not clear that users are actually receiving automatic updates to the app.  **If you haven't checked you are running the most recent version, you should check manually and update now.**
 
 ## Types of issues
 
@@ -172,13 +172,15 @@ These connection attempts do not time out, and so for every device that goes out
 
 After about 100 pending connections, the phone becomes unable to connect to new devices. This prevents further encounters from being recorded, but also prevents other apps from initiating connections to other BLE devices (e.g. smart watches, diabetes continuous glucose monitoring, etc).
 
-### 14. iPhone app can't exchange messages with other iPhones
-Status: Fixed   
+### 14. 🚨 iPhone app can't exchange messages as expected with other iPhones 🚨
+Status: **Not fixed**   
 Type: Functionality   
 Affects: iOS   
-More info: [Blog post](https://github.com/vteague/contactTracing/blob/master/blog/2020-06-19IssueswithCOVIDSafesNewEncryptionScheme.md#iPhoneToiPhoneBug)
+More info: [Earlier blog post](https://github.com/vteague/contactTracing/blob/master/blog/2020-06-19IssueswithCOVIDSafesNewEncryptionScheme.md#iPhoneToiPhoneBug), [GitHub issue on errors in the attempted fix](https://github.com/AU-COVIDSafe/mobile-ios/issues/11)
 
-When the V2 payload was introduced (see #3 above), the iPhone implementation incorrectly truncated the new messages, resulting in encounters being silently ignored and not logged to the database.
+When the V2 payload was introduced (see #3 above), the iPhone implementation incorrectly truncated the new messages, resulting in the encounters being silently ignored and not logged to the database. Fortunately due to redundancy in the design, there is a second mechanism where the payload is exchanged, but this bug overall decreases the reliability of the contact tracing functionality.
+
+A fix was attempted, however it contains a new bug, which means that while the encounters are now logged, they are actually corrupted, which means they will not be able to be decrypted by the server.
 
 ### 15. Android app can't discover background-mode iPhones
 Status: Fixed   
