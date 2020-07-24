@@ -11,14 +11,14 @@ The complete list is:
 - [COVIDSafe's new payload encryption scheme (15 June)](https://github.com/vteague/contactTracing/blob/master/blog/2020-06-15COVIDSafesNewEncryptionScheme.md)
 - [Issues with COVIDSafe's new encryption scheme (19 June)](https://github.com/vteague/contactTracing/blob/master/blog/2020-06-19IssueswithCOVIDSafesNewEncryptionScheme.md)
 - [The current state of COVIDSafe (mid-June 2020) (22 June)](https://github.com/vteague/contactTracing/blob/master/blog/2020-06-22OutstandingPrivacyIssues.md)
-- [**COVIDSafe issues found by the tech community (7 July) - this post**](https://github.com/vteague/contactTracing/blob/master/blog/2020-07-07IssueSummary.md)
+- [**COVIDSafe issues found by the tech community (7 July, updated 24 July) - this post**](https://github.com/vteague/contactTracing/blob/master/blog/2020-07-07IssueSummary.md)
 
 ---------------------------------------
 
 Jim Mussared: jim.mussared [at] gmail.com / [@jim_mussared](https://twitter.com/jim_mussared)   
 Vanessa Teague: [ThinkingCybersecurity Pty Ltd](https://www.thinkingcybersecurity.com) / [@VTeagueAus](https://twitter.com/vteagueaus)
 
-Last updated: July 24th 2020
+Last updated: July 24th 2020, for Android v1.0.39 / iPhone v1.8. New fixes are noted below.
 
 # COVIDSafe issues found by the tech community
 
@@ -175,7 +175,7 @@ These connection attempts do not time out, and so for every device that goes out
 After about 100 pending connections, the phone becomes unable to connect to new devices. This prevents further encounters from being recorded, but also prevents other apps from initiating connections to other BLE devices (e.g. smart watches, diabetes continuous glucose monitoring, etc).
 
 ### 14. iPhone app can't exchange messages as expected with other iPhones
-Status: Fixed   
+Status: Fixed in v1.8.  
 Type: Functionality   
 Affects: iOS   
 More info: [Earlier blog post](https://github.com/vteague/contactTracing/blob/master/blog/2020-06-19IssueswithCOVIDSafesNewEncryptionScheme.md#iPhoneToiPhoneBug), [GitHub issue on errors in the attempted fix](https://github.com/AU-COVIDSafe/mobile-ios/issues/11)
@@ -266,17 +266,17 @@ There were numerous issues discovered by the community in the handling of downlo
 This created a privacy issue, allowing for tracking and re-identification of devices, but also a functionality issue, as expired tracing IDs will not be counted as valid encounters.
 
 ### 23. The Android app silently fails to function if "Location" is disabled
-Status: Fixed (pending UI changes)   
+Status: Fixed in v1.0.39 (pending UI changes)   
 Type: Functionality, Privacy   
 Affects: Android   
 More info: [GitHub issue](https://github.com/AU-COVIDSafe/mobile-android/issues/6)
 
 Privacy-conscious users may disable the "Location" global setting on Android. As Bluetooth scanning allows an app to detect the presence of positioning beacons, having location disabled prevents an app from being able to scan for BLE devices.
 
-COVIDSafe fails to detect this condition and will silently fail to scan for other devices.
+COVIDSafe fails to detect this condition and will silently fail to scan for other devices.  This prevents two Android phones that both have "Location" off from exchanging TempIDs.  However, it should not prevent an Android phone with "Location" off from successfully exchanging TempIDs both ways in the peripheral role, with another phone that is either an iPhone or an Android phone with "Location" on.
 
-The core issue was fixed in v1.0.39 however there are some [UI problems that need to be addressed](https://github.com/AU-COVIDSafe/mobile-android/issues/13).
-
+The core issue was fixed in v1.0.39 however there are some [UI problems that need to be addressed when "Location" is off](https://github.com/AU-COVIDSafe/mobile-android/issues/13).
+The main screen tells users that it is not active, when it is active and working in most circumstances, as described above.
 
 ###  24. 🚨 The app doesn't auto-update 🚨
 Status: **Not fixed**   
