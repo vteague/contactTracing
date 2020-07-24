@@ -273,7 +273,7 @@ More info: [GitHub issue](https://github.com/AU-COVIDSafe/mobile-android/issues/
 
 Privacy-conscious users may disable the "Location" global setting on Android. As Bluetooth scanning allows an app to detect the presence of positioning beacons, having location disabled prevents an app from being able to scan for BLE devices.
 
-COVIDSafe fails to detect this condition and will silently fail to scan for other devices.  This prevents two Android phones that both have "Location" off from exchanging TempIDs.  However, it should not prevent an Android phone with "Location" off from successfully exchanging TempIDs both ways in the peripheral role, with another phone that is either an iPhone or an Android phone with "Location" on.
+COVIDSafe fails to detect this condition and will silently fail to scan for other devices.  This prevents two Android phones that both have "Location" off from exchanging TempIDs with each other or with any phone affected by Issue 25. However, it should not prevent an Android phone with "Location" off from successfully exchanging TempIDs both ways in the peripheral role, with another phone that is either an iPhone or an Android phone with "Location" on (and not affected by Issue 25). 
 
 The core issue was fixed in v1.0.39 however there are some [UI problems that need to be addressed when "Location" is off](https://github.com/AU-COVIDSafe/mobile-android/issues/13).
 The main screen tells users that it is not active, when it is active and working in most circumstances, as described above.
