@@ -18,11 +18,13 @@ The complete list is:
 Jim Mussared: jim.mussared [at] gmail.com / [@jim_mussared](https://twitter.com/jim_mussared)   
 Vanessa Teague: [ThinkingCybersecurity Pty Ltd](https://www.thinkingcybersecurity.com) / [@VTeagueAus](https://twitter.com/vteagueaus)
 
+Last updated: July 24th 2020
+
 # COVIDSafe issues found by the tech community
 
 ## Introduction
 
-COVIDSafe was launched on April 27th, 2020. Several volunteers from the Australian tech community have spent considerable amounts of time analysing the code of the Android and iOS apps in order to help improve their contact tracing functionality and privacy.
+COVIDSafe was launched on April 26th, 2020. Several volunteers from the Australian tech community have spent considerable amounts of time analysing the code of the Android and iOS apps in order to help improve their contact tracing functionality and privacy.
 
 Many issues have been found as well as recommendations for how to fix them, and some of these fixes have dramatically improved the effectiveness of the COVIDSafe app. In addition, several of these issues have been found and reported in contact tracing apps used in other countries.
 
@@ -172,8 +174,8 @@ These connection attempts do not time out, and so for every device that goes out
 
 After about 100 pending connections, the phone becomes unable to connect to new devices. This prevents further encounters from being recorded, but also prevents other apps from initiating connections to other BLE devices (e.g. smart watches, diabetes continuous glucose monitoring, etc).
 
-### 14. 🚨 iPhone app can't exchange messages as expected with other iPhones 🚨
-Status: **Not fixed**   
+### 14. iPhone app can't exchange messages as expected with other iPhones
+Status: Fixed   
 Type: Functionality   
 Affects: iOS   
 More info: [Earlier blog post](https://github.com/vteague/contactTracing/blob/master/blog/2020-06-19IssueswithCOVIDSafesNewEncryptionScheme.md#iPhoneToiPhoneBug), [GitHub issue on errors in the attempted fix](https://github.com/AU-COVIDSafe/mobile-ios/issues/11)
@@ -181,6 +183,8 @@ More info: [Earlier blog post](https://github.com/vteague/contactTracing/blob/ma
 When the V2 payload was introduced (see #3 above), the iPhone implementation incorrectly truncated the new messages, resulting in the encounters being silently ignored and not logged to the database. Fortunately due to redundancy in the design, there is a second mechanism where the payload is exchanged, but this bug overall decreases the reliability of the contact tracing functionality.
 
 A fix was attempted, however it contains a new bug, which means that while the encounters are now logged, they are actually corrupted, which means they will not be able to be decrypted by the server.
+
+This was fixed in v1.8 for iOS.
 
 ### 15. Android app can't discover background-mode iPhones
 Status: Fixed   
@@ -261,8 +265,8 @@ There were numerous issues discovered by the community in the handling of downlo
 
 This created a privacy issue, allowing for tracking and re-identification of devices, but also a functionality issue, as expired tracing IDs will not be counted as valid encounters.
 
-### 23. 🚨 The Android app silently fails to function if "Location" is disabled 🚨
-Status: **Not fixed**   
+### 23. The Android app silently fails to function if "Location" is disabled
+Status: Fixed (pending UI changes)   
 Type: Functionality, Privacy   
 Affects: Android   
 More info: [GitHub issue](https://github.com/AU-COVIDSafe/mobile-android/issues/6)
@@ -270,6 +274,8 @@ More info: [GitHub issue](https://github.com/AU-COVIDSafe/mobile-android/issues/
 Privacy-conscious users may disable the "Location" global setting on Android. As Bluetooth scanning allows an app to detect the presence of positioning beacons, having location disabled prevents an app from being able to scan for BLE devices.
 
 COVIDSafe fails to detect this condition and will silently fail to scan for other devices.
+
+The core issue was fixed in v1.0.39 however there are some [UI problems that need to be addressed](https://github.com/AU-COVIDSafe/mobile-android/issues/13).
 
 
 ###  24. 🚨 The app doesn't auto-update 🚨
@@ -286,6 +292,22 @@ There are also reports that a similar issue is affecting the iPhone app.
 
 **This means that many users are still running the first version of COVIDSafe they installed, and will have not received any of the fixes described above.  So even the issues that are "fixed" in principle in the current version may not actually be fixed in practice on users' phones.**
 
+v1.0.39 for Android and v1.8 for iOS add support for push notifications (using Firebase Cloud Messaging and Apple Notifications respectively). However, the Android app has not yet implemented support for a "need to update" notification.
+
+
+### 25. 🚨 Android app loses location permission after 1.0.39 update 🚨
+Status: **Not fixed**   
+Type: Functionality, Usability   
+Affects: Android   
+More info: [GitHub Issue](https://github.com/AU-COVIDSafe/mobile-android/issues/14)
+
+The v1.0.39 release changed from using Android's "fine" location permission, to "coarse". This is a good change -- the app never needed "fine" location, so "coarse" is what it should be using. However, due to the way the change was made, after the update the app will likely have no location permission at all until the user manually opens the app to grant the new "coarse" permission.
+
+There is a notification shown, however it's not a new notification, rather it just updates the text of the existing "COVIDSafe is running" notification, so there is no pop up. Additionally, the icon (which is the most obvious part) does not change. **This means that many users will not notice that the app is now unable to scan for other devices running COVIDSafe.**
+
+*Although the app doesn't actually use location, this permission (either "coarse" or "fine") is required to enable BLE scanning.*
+
+Fortunately, due to #24 above, it's likely that many users will not yet have received this update.
 
 
 ## Recommendations
@@ -296,13 +318,12 @@ The [Google/Apple Exposure Notification API](https://www.apple.com/covid19/conta
 
 The Apple/Google Exposure Notification API is not perfect, and does have its own privacy implications.  For example, Android requires Google location services in order to enable the API, an unnecessary invasion of users' location privacy (though one that is irrelevant to users who already turn Google location on).  Compared with a centralised system like COVIDSafe, it also gives users more information about when they interacted with those who have tested positive, potentially increasing the likelihood that the source of infection could be identified and tracked during the time they were assumed infectious.  However, the Google/Apple API has two overwhelming advantages: better function, and better privacy from government.  It is important to understand that this is not because the database of close contacts is handed to the tech companies: the Google/Apple API is designed not to build that database.
 
-Human contact tracers can be involved in an app based on the Google/Apple API.  The [Irish app](https://www.irishtimes.com/business/technology/what-is-covid-tracker-ireland-1.4298128) allows users to opt in to giving their phone number so they can be contacted by a person if they are identified as having been exposed.  The difference between this and COVIDSafe is that the authority does not receive each infected person's list of face-to-face contacts, just a notification that a particular person has been exposed. 
+Human contact tracers can be involved in an app based on the Google/Apple API.  The [Irish app](https://www.irishtimes.com/business/technology/what-is-covid-tracker-ireland-1.4298128) allows users to opt in to giving their phone number so they can be contacted by a person if they are identified as having been exposed.  The difference between this and COVIDSafe is that the authority does not receive each infected person's list of face-to-face contacts, just a notification that a particular person has been exposed.
 
 Although there are pros and cons, there does not seem to be any reasonable analysis or understanding in government of why a centralised model has been chosen. Consider for example Minister Robert's [recent attempt to explain](https://minister.servicesaustralia.gov.au/transcripts/2020-07-07-q-and-speech-national-press-club):
 > *there's an opportunity I think here for the big tech companies to lock step in with sovereign governments and assist them with their sovereign approach to doing tracing. Remember, digital tracing simply enhances a manual tracing process. The big tech companies with their exposure notification framework are saying that digital tracing unto itself is enough. The global experience shows quite clearly it is not enough.*
 
-The world is headed for a large and not very well-controlled empirical test, so we will soon see evidence that allows us to compare the countries with decentralised 
-apps based on the Apple/Google API (such as Italy, Germany, Switzerland, Ireland and the UK) against those that stick with a centralised model.  The Australian authorities are choosing to emphasise centralised data gathering, knowing that this carries a cost for basic successful functioning (for all the reasons described above).  The global experience will soon show whether this was wise.
+The world is headed for a large and not very well-controlled empirical test, so we will soon see evidence that allows us to compare the countries with decentralised apps based on the Apple/Google API (such as Italy, Germany, Switzerland, Ireland and the UK) against those that stick with a centralised model.  The Australian authorities are choosing to emphasise centralised data gathering, knowing that this carries a cost for basic successful functioning (for all the reasons described above).  The global experience will soon show whether this was wise.
 
 
 ### The server code
