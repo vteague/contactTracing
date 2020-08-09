@@ -11,14 +11,14 @@ The complete list is:
 - [COVIDSafe's new payload encryption scheme (15 June)](https://github.com/vteague/contactTracing/blob/master/blog/2020-06-15COVIDSafesNewEncryptionScheme.md)
 - [Issues with COVIDSafe's new encryption scheme (19 June)](https://github.com/vteague/contactTracing/blob/master/blog/2020-06-19IssueswithCOVIDSafesNewEncryptionScheme.md)
 - [The current state of COVIDSafe (mid-June 2020) (22 June)](https://github.com/vteague/contactTracing/blob/master/blog/2020-06-22OutstandingPrivacyIssues.md)
-- [**COVIDSafe issues found by the tech community (7 July, updated 24 July) - this post**](https://github.com/vteague/contactTracing/blob/master/blog/2020-07-07IssueSummary.md)
+- [**COVIDSafe issues found by the tech community (7 July, updated 9 August) - this post**](https://github.com/vteague/contactTracing/blob/master/blog/2020-07-07IssueSummary.md)
 
 ---------------------------------------
 
 Jim Mussared: jim.mussared [at] gmail.com / [@jim_mussared](https://twitter.com/jim_mussared)   
 Vanessa Teague: [ThinkingCybersecurity Pty Ltd](https://www.thinkingcybersecurity.com) / [@VTeagueAus](https://twitter.com/vteagueaus)
 
-Last updated: July 24th 2020, for Android v1.0.39 / iPhone v1.8. New fixes are noted below.
+Last updated: August 9th 2020, for Android v1.0.48 / iPhone v1.9. New fixes are noted below.
 
 # COVIDSafe issues found by the tech community
 
@@ -120,15 +120,13 @@ A non-silent version of the above issue, where a prompt is shown that says "COVI
 
 Both the Android and iPhone apps now include a prominent message that "COVIDSafe does not send pairing requests".
 
-### 8. 🚨 Undetectable, permanent long-term tracking of Android devices 🚨
-Status: **Partially fixed**   
+### 8. Undetectable, permanent long-term tracking of Android devices
+Status: Fixed in v1.0.49   
 Type: Privacy   
 Affects: Android   
 More info: Coming soon
 
 An attacker could trick COVIDSafe into connecting with the phone's identity address, rather than the random address normally used. This identity address then permanently identifies the phone, and like #5, allows for re-identifying the device even after COVIDSafe is uninstalled and the phone is factory reset.
-
-This is only fixed when running on Android 6.0 and higher.
 
 ### 9. Remote code execution and ability to crash system Bluetooth service on Android
 Status: Fixed   
@@ -162,8 +160,8 @@ More info: [Issue report](https://docs.google.com/document/d/1dsSxC48cJ91X17PoOy
 
 The app downloads a new tracing ID every two hours, but in order to do so it needs to access the authentication token in the device keychain which it uses to talk to the Amazon server. When the token was first created, it was not stored in a way that allowed access while the device was locked.
 
-### 13. 🚨 iPhone app prevents new connections after 100 exchanges 🚨
-Status: **Not fixed**   
+### 13. iPhone app prevents new connections after 100 exchanges
+Status: Fixed in v1.9   
 Type: Functionality   
 Affects: iOS   
 More info: [GitHub issue](https://github.com/AU-COVIDSafe/mobile-ios/issues/9)
@@ -173,6 +171,8 @@ Once a remote device is found during a scan, the app will then attempt to connec
 These connection attempts do not time out, and so for every device that goes out of range the phone will remain in an "attempting to connect" state to that device. In addition, phones change their address every few minutes, which means that any nearby phone will appear to go out of range every few minutes.
 
 After about 100 pending connections, the phone becomes unable to connect to new devices. This prevents further encounters from being recorded, but also prevents other apps from initiating connections to other BLE devices (e.g. smart watches, diabetes continuous glucose monitoring, etc).
+
+An fix was attempted in v1.8 but the issue persisted. It was fixed completely in v1.9.
 
 ### 14. iPhone app can't exchange messages as expected with other iPhones
 Status: Fixed in v1.8.  
@@ -228,7 +228,7 @@ Type: Privacy
 Affects: Android and iOS   
 More info: [Blog post](https://github.com/vteague/contactTracing#implications-of-a-plaintext-counter)
 
-The implementation of the V2 protocol uses a counter which inadvertently leaks information about the number of encounters that the device has recorded in the last 7.5 minutes.
+The implementation of the V2 encryption protocol uses a counter which inadvertently leaks information about the number of encounters that the device has recorded in the last 7.5 minutes.
 
 ### 20. Confusing message tells users they have tested positive to COVID-19
 Status: Fixed   
@@ -279,7 +279,7 @@ The core issue was fixed in v1.0.39 however there are some [UI problems that nee
 The main screen tells users that it is not active, when it is active and working in most circumstances, as described above.
 
 ###  24. 🚨 The app doesn't auto-update 🚨
-Status: **Not fixed**   
+Status: Fix in-progress (starting with v1.8 & v1.0.49)   
 Type: Functionality, Privacy, Usability, Security   
 Affects: Android   
 More info: [Blog post](https://github.com/vteague/contactTracing/blob/master/blog/2020-06-22OutstandingPrivacyIssues.md#the-app-does-not-automatically-update)
@@ -292,7 +292,7 @@ There are also reports that a similar issue is affecting the iPhone app.
 
 **This means that many users are still running the first version of COVIDSafe they installed, and will have not received any of the fixes described above.  So even the issues that are "fixed" in principle in the current version may not actually be fixed in practice on users' phones.**
 
-v1.0.39 for Android and v1.8 for iOS add support for push notifications (using Firebase Cloud Messaging and Apple Notifications respectively). However, the Android app has not yet implemented support for a "need to update" notification.
+v1.0.39 for Android and v1.8 for iOS add support for push notifications (using Firebase Cloud Messaging and Apple Notifications respectively). v1.8 for iOS and v1.0.48 for Android then implemented a "need to update" notification. **We understand that the DTA are working with Google to make Google Play Store temporarily able to force COVIDSafe to update.**
 
 
 ### 25. 🚨 Android app loses location permission after 1.0.39 update 🚨
@@ -303,11 +303,42 @@ More info: [GitHub Issue](https://github.com/AU-COVIDSafe/mobile-android/issues/
 
 The v1.0.39 release changed from using Android's "fine" location permission, to "coarse". This is a good change -- the app never needed "fine" location, so "coarse" is what it should be using. However, due to the way the change was made, after the update the app will likely have no location permission at all until the user manually opens the app to grant the new "coarse" permission.
 
-There is a notification shown, however it's not a new notification, rather it just updates the text of the existing "COVIDSafe is running" notification, so there is no pop up. Additionally, the icon (which is the most obvious part) does not change. **This means that many users will not notice that the app is now unable to scan for other devices running COVIDSafe.**
+There is a notification shown, however it's not a new notification, rather it just updates the text of the existing "COVIDSafe is running" notification, so there is no pop up. Additionally, the icon (which is the most obvious part) does not change. **This means that users may not notice that the app is now unable to scan for other devices running COVIDSafe.**
 
 *Although the app doesn't actually use location, this permission (either "coarse" or "fine") is required to enable BLE scanning.*
 
-Fortunately, due to #24 above, it's likely that many users will not yet have received this update.
+It's confusing to users that the app suddenly seems to require location permission, and might make it seem like the new version is now introducing additional location-based functionality (which it isn't).
+
+
+### 26. 🚨 Can't click "continue" in Android registration screen  🚨
+Status: **Not fixed**   
+Type: Functionality, Usability   
+Affects: Android   
+More info: [GitHub Issue](https://github.com/AU-COVIDSafe/mobile-android/issues/17)
+
+A user interface issue prevents the "Continue" and "Get Pin" buttons from being pressed during the registration screen. It's not intuitive how to work around this issue.
+
+
+### 27. 🚨 App silently doesn't function on some Android 5.1/6.0/7.0 devices  🚨
+Status: **Not fixed**   
+Type: Functionality   
+Affects: Android   
+More info: [GitHub Issue](https://github.com/AU-COVIDSafe/mobile-android/issues/18)
+
+Although the COVIDSafe app supports phones running versions of Android all the way back to Android 5.1, some phones running 5.1, 6.0, and 7.0 do not have the Bluetooth functionality required to run COVIDSafe. The app does not detect this and appears like everything is working, when app cannot actually be detected by other phones.
+
+
+### 28. 🚨 Android app can corrupt its registration token leading to crash on startup  🚨
+Status: **Not fixed**   
+Type: Functionality, Usability  
+Affects: Android   
+More info: [GitHub Issue](https://github.com/AU-COVIDSafe/mobile-android/issues/23)
+
+A Twitter user [noticed in early July](https://twitter.com/_the_culture/status/1281505842026577920) that the COVIDSafe app was crashing on startup. This was eventually noticed by several more people and reported privately to the DTA, but with no response.
+
+If affected by this issue, the user must uninstall and reinstall the app to recover (or manually remove all app data). Unfortunately this results in having to re-register and loses all encounter history. However, the more likely outcome is that people will just stop using the app.
+
+The root cause and suggested fix is complicated, see the GitHub issue linked above for details. In summary this is in large part due to COVIDSafe using an unstable version of an Android library, copied into the COVIDSafe code rather than used as a library. At the very least this dependency should have been kept up to date and moved to the released version, which would have avoided this being an unrecoverable error.
 
 
 ## Recommendations
@@ -336,7 +367,7 @@ The update of COVIDSafe has been communicated entirely in terms of "number of do
 
 The industry standard is to report "active users" over some time period. i.e. "1-day active users" are the number of unique users who are actively using the app in a 24-hour period.
 
-As the app downloads a new tracing ID from the AWS server every two hours, using the user's unique authentication token, the server is trivially able to generate this information.
+As the app downloads a new tracing ID from the AWS server every hour, using the user's unique authentication token, the server is trivially able to generate this information.
 
 ### Formal security reporting process and bug bounty
 
@@ -348,9 +379,14 @@ The legislation created to support the COVIDSafe app, known as the Privacy Amend
 
 ### Auto-updates
 
-The DTA should add code to the app to report the current version to the server when downloading the two-hourly tracing ID, allowing the server to respond with a message telling the app that it needs to be updated.
+The DTA should add code to the app to report the current version to the server when downloading the tracing ID (every hour), allowing the server to respond with a message telling the app that it needs to be updated.
 
 In addition, this would provide better metrics to the DTA on whether users are receiving updates.
+
+Update: As of 1.0.49 for Android and v1.9 for iOS (early August):
+* Both iOS and Android apps support a push notification to tell the user to update.
+* The tracing ID is now downloaded daily instead of hourly.
+* The tracing ID request now includes a flag indicating that the app is at least v1.0.49/v1.9 (but does not include the actual version number).
 
 ## Acknowledgments
 
