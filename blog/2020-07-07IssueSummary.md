@@ -11,14 +11,14 @@ The complete list is:
 - [COVIDSafe's new payload encryption scheme (15 June)](https://github.com/vteague/contactTracing/blob/master/blog/2020-06-15COVIDSafesNewEncryptionScheme.md)
 - [Issues with COVIDSafe's new encryption scheme (19 June)](https://github.com/vteague/contactTracing/blob/master/blog/2020-06-19IssueswithCOVIDSafesNewEncryptionScheme.md)
 - [The current state of COVIDSafe (mid-June 2020) (22 June)](https://github.com/vteague/contactTracing/blob/master/blog/2020-06-22OutstandingPrivacyIssues.md)
-- [**COVIDSafe issues found by the tech community (7 July, updated 9 August) - this post**](https://github.com/vteague/contactTracing/blob/master/blog/2020-07-07IssueSummary.md)
+- [**COVIDSafe issues found by the tech community (7 July, updated 28 Oct) - this post**](https://github.com/vteague/contactTracing/blob/master/blog/2020-07-07IssueSummary.md)
 
 ---------------------------------------
 
 Jim Mussared: jim.mussared [at] gmail.com / [@jim_mussared](https://twitter.com/jim_mussared)   
 Vanessa Teague: [ThinkingCybersecurity Pty Ltd](https://www.thinkingcybersecurity.com) / [@VTeagueAus](https://twitter.com/vteagueaus)
 
-Last updated: August 9th 2020, for Android v1.0.48 / iPhone v1.9. New fixes are noted below.
+Last updated: October 28th 2020, for Android v1.1.13 / iPhone v1.9. New fixes are noted below.
 
 # COVIDSafe issues found by the tech community
 
@@ -28,7 +28,9 @@ COVIDSafe was launched on April 26th, 2020. Several volunteers from the Australi
 
 Many issues have been found as well as recommendations for how to fix them, and some of these fixes have dramatically improved the effectiveness of the COVIDSafe app. In addition, several of these issues have been found and reported in contact tracing apps used in other countries.
 
-Most, but not all, of these issues have been fixed.  However, due to a quirk in the way that COVIDSafe works, it is not clear that users are actually receiving automatic updates to the app.  **If you haven't checked you are running the most recent version, you should check manually and update now.**
+Most, but not all, of these issues have been fixed.  However, due to a quirk in the way that COVIDSafe works, it is not clear that users are actually receiving automatic updates to the app.  If you haven't checked you are running the most recent version, you should check manually and update now.
+
+Oct 28th: The most important message for users is for Issue 25: **users need to open the app, check that its location permissions are OK (have a green tick) and, if not, grant location permission to the app (again).** Note that leaving the global location setting off also prevents scanning - see Issue 23.
 
 ## Types of issues
 
@@ -100,7 +102,7 @@ An attacker could trigger a silent pairing process with an Android phone running
 
 This was registered as CVE-2020-12858 which was assigned a ["Critical" 9.8 out of 10 severity rating](https://nvd.nist.gov/vuln/detail/CVE-2020-12856).
 
-Note: It is unclear whether the fix for this will still be viable past November 2020 when the Google Play Store requires API level 29.
+Note: A new workaround was applied in Version 1.1.13 which does not have a known expiry date.
 
 ### 6. Ability to remote control an Android device running COVIDSafe
 Status: Fixed   
@@ -222,13 +224,13 @@ More info: [Blog post](https://github.com/vteague/contactTracing/blob/master/blo
 
 The implementation of the V2 protocol had a concurrency bug, where simultaneous encounters would result in corrupted entries being written to the log.  It also crashed the app.
 
-### 19. 🚨 Plaintext counter leaks information 🚨
-Status: **Not fixed**   
+### 19. Plaintext counter leaks information
+Status: Fixed   
 Type: Privacy   
 Affects: Android and iOS   
 More info: [Blog post](https://github.com/vteague/contactTracing#implications-of-a-plaintext-counter)
 
-The implementation of the V2 encryption protocol uses a counter which inadvertently leaks information about the number of encounters that the device has recorded in the last 7.5 minutes.
+The implementation of the V2 protocol used a counter which inadvertently leaked information about the number of encounters that the device has recorded in the last 7.5 minutes. This was corrected by substituting a small random number instead of a counter.  This is not a standard use of the cryptographic primitives involved.
 
 ### 20. Confusing message tells users they have tested positive to COVID-19
 Status: Fixed   
@@ -278,32 +280,31 @@ COVIDSafe fails to detect this condition and will silently fail to scan for othe
 The core issue was fixed in v1.0.39 however there are some [UI problems that need to be addressed when "Location" is off](https://github.com/AU-COVIDSafe/mobile-android/issues/13).
 The main screen tells users that it is not active, when it is active and working in most circumstances, as described above.
 
-###  24. 🚨 The app doesn't auto-update 🚨
+###  24. The app didn't auto-update 
 Status: Fix in-progress (starting with v1.8 & v1.0.49)   
 Type: Functionality, Privacy, Usability, Security   
 Affects: Android   
 More info: [Blog post](https://github.com/vteague/contactTracing/blob/master/blog/2020-06-22OutstandingPrivacyIssues.md#the-app-does-not-automatically-update)
 
-The Android app is unable to automatically update to new versions published in the play store.
+The Android app was unable to automatically update to new versions published in the play store.
+There were also reports that a similar issue is affecting the iPhone app.
 
-The cause of this is not currently known, however it's likely because the app is always active while in the background, so the same logic that prevents a podcast player from updating mid-playback possibly applies.
+v1.0.39 for Android and v1.8 for iOS add support for push notifications (using Firebase Cloud Messaging and Apple Notifications respectively). v1.8 for iOS and v1.0.48 for Android then implemented a "need to update" notification. 
 
-There are also reports that a similar issue is affecting the iPhone app.
-
-**This means that many users are still running the first version of COVIDSafe they installed, and will have not received any of the fixes described above.  So even the issues that are "fixed" in principle in the current version may not actually be fixed in practice on users' phones.**
-
-v1.0.39 for Android and v1.8 for iOS add support for push notifications (using Firebase Cloud Messaging and Apple Notifications respectively). v1.8 for iOS and v1.0.48 for Android then implemented a "need to update" notification. **We understand that the DTA are working with Google to make Google Play Store temporarily able to force COVIDSafe to update.**
+**We are not certain of the current status of this problem. Users should probably still check manually that they have received the most recent update.**
 
 
 ### 25. 🚨 Android app loses location permission after 1.0.39 update 🚨
-Status: **Not fixed**   
+Status: **Fixed, then un-fixed again for v1.1.13**   
 Type: Functionality, Usability   
 Affects: Android   
 More info: [GitHub Issue](https://github.com/AU-COVIDSafe/mobile-android/issues/14)
 
 The v1.0.39 release changed from using Android's "fine" location permission, to "coarse". This is a good change -- the app never needed "fine" location, so "coarse" is what it should be using. However, due to the way the change was made, after the update the app will likely have no location permission at all until the user manually opens the app to grant the new "coarse" permission.
 
-There is a notification shown, however it's not a new notification, rather it just updates the text of the existing "COVIDSafe is running" notification, so there is no pop up. Additionally, the icon (which is the most obvious part) does not change. **This means that users may not notice that the app is now unable to scan for other devices running COVIDSafe.**
+The v1.1.13 release changed back to "fine" location permission.  This means **users need to repeat the process: Open the app, check that its location permissions are OK (have a green tick) and, if not, grant location permission to the app (again).** (Note that leaving the global location setting off also prevents scanning - see Issue 23).
+
+There is a notification shown, however it's not a new notification, rather it just updates the text of the existing "COVIDSafe is running" notification, so there is no pop up. Additionally, the icon (which is the most obvious part) does not change. This means that users may not notice that the app is now unable to scan for other devices running COVIDSafe.
 
 *Although the app doesn't actually use location, this permission (either "coarse" or "fine") is required to enable BLE scanning.*
 
@@ -329,7 +330,7 @@ Although the COVIDSafe app supports phones running versions of Android all the w
 
 
 ### 28. 🚨 Android app can corrupt its registration token leading to crash on startup  🚨
-Status: **Not fixed**   
+Status: **Workaround - status unclear**   
 Type: Functionality, Usability  
 Affects: Android   
 More info: [GitHub Issue](https://github.com/AU-COVIDSafe/mobile-android/issues/23)
@@ -340,6 +341,7 @@ If affected by this issue, the user must uninstall and reinstall the app to reco
 
 The root cause and suggested fix is complicated, see the GitHub issue linked above for details. In summary this is in large part due to COVIDSafe using an unstable version of an Android library, copied into the COVIDSafe code rather than used as a library. At the very least this dependency should have been kept up to date and moved to the released version, which would have avoided this being an unrecoverable error.
 
+We are not sure of the current status of this problem.  There seems to be an attempted fix, but we are not sure whether it solves the underlying problem or merely prevents it causing a crash.
 
 ## Recommendations
 
