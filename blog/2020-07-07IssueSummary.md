@@ -18,7 +18,7 @@ The complete list is:
 Jim Mussared: jim.mussared [at] gmail.com / [@jim_mussared](https://twitter.com/jim_mussared)   
 Vanessa Teague: [ThinkingCybersecurity Pty Ltd](https://www.thinkingcybersecurity.com) / [@VTeagueAus](https://twitter.com/vteagueaus)
 
-Last updated: October 28th 2020, for Android v1.1.13 / iPhone v1.9. New fixes are noted below.
+Last updated: October 28th 2020, for Android v1.1.13 / iPhone v1.13. New fixes are noted below.
 
 # COVIDSafe issues found by the tech community
 
