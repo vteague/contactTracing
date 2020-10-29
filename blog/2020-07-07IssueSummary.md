@@ -18,7 +18,7 @@ The complete list is:
 Jim Mussared: jim.mussared [at] gmail.com / [@jim_mussared](https://twitter.com/jim_mussared)   
 Vanessa Teague: [ThinkingCybersecurity Pty Ltd](https://www.thinkingcybersecurity.com) / [@VTeagueAus](https://twitter.com/vteagueaus)
 
-Last updated: October 28th 2020, for Android v1.1.13 / iPhone v1.13. New fixes are noted below.
+Last updated: October 28th 2020, for Android v1.13 / iPhone v1.13. New fixes are noted below.
 
 # COVIDSafe issues found by the tech community
 
@@ -102,7 +102,7 @@ An attacker could trigger a silent pairing process with an Android phone running
 
 This was registered as CVE-2020-12858 which was assigned a ["Critical" 9.8 out of 10 severity rating](https://nvd.nist.gov/vuln/detail/CVE-2020-12856).
 
-Note: A new workaround was applied in Version 1.1.13 which does not have a known expiry date.
+Note: A new workaround was applied in Version 1.13 which does not have a known expiry date.
 
 ### 6. Ability to remote control an Android device running COVIDSafe
 Status: Fixed   
@@ -295,14 +295,14 @@ v1.0.39 for Android and v1.8 for iOS add support for push notifications (using F
 
 
 ### 25. 🚨 Android app loses location permission after 1.0.39 update 🚨
-Status: **Fixed, then un-fixed again for v1.1.13**   
+Status: **Fixed, then un-fixed again for v1.13**   
 Type: Functionality, Usability   
 Affects: Android   
 More info: [GitHub Issue](https://github.com/AU-COVIDSafe/mobile-android/issues/14)
 
 The v1.0.39 release changed from using Android's "fine" location permission, to "coarse". This is a good change -- the app never needed "fine" location, so "coarse" is what it should be using. However, due to the way the change was made, after the update the app will likely have no location permission at all until the user manually opens the app to grant the new "coarse" permission.
 
-The v1.1.13 release changed back to "fine" location permission.  This means **users need to repeat the process: Open the app, check that its location permissions are OK (have a green tick) and, if not, grant location permission to the app (again).** (Note that leaving the global location setting off also prevents scanning - see Issue 23).
+The v1.13 release changed back to "fine" location permission.  This means **users need to repeat the process: Open the app, check that its location permissions are OK (have a green tick) and, if not, grant location permission to the app (again).** (Note that leaving the global location setting off also prevents scanning - see Issue 23).
 
 There is a notification shown, however it's not a new notification, rather it just updates the text of the existing "COVIDSafe is running" notification, so there is no pop up. Additionally, the icon (which is the most obvious part) does not change. This means that users may not notice that the app is now unable to scan for other devices running COVIDSafe.
 
