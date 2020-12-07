@@ -108,7 +108,7 @@ If the consultants hired to advise the DTA on developing COVIDSafe had set out w
 
 Herald's claims of interoperability are also to be taken with great skepticism: anything is interoperable with other things that change to fit it, but Herald is not interoperable with any existing deployed system - their [International Interoperability Specification](https://vmware.github.io/herald/specs/payload-interop) has an ``initial very draft commit'' from December 4th, sketches substantial changes that would need to be made to other systems in order to interoperate with it, and does not show a sufficient understanding of how decentralised approaches work. A snapshot is copied below.
 
-![](HeraldInteroperability.png | width = 50%)
+![](HeraldInteroperability.png&s=200)
 
 
 ## Truthfulness, Christmas, and engagement with the technical community
