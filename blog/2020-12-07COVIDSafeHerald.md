@@ -40,8 +40,6 @@ Herald is primarily a collection of tricks and workarounds for allowing two phon
 
 Herald is not the same code that the UK rejected in June, but it is a continuation of the BLE connection-based model that the UK, like almost every other country, abandoned in favour of the Google/Apple Exposure Notification framework.   Some of its techniques are very similar to those of the abandoned NHSX App, others are new, but none of them solve the underlying limitations of this approach.  The NHS concluded that these sorts of workarounds were not viable and rejected pursuing an approach based on them.
 
-<!-- Herald's developers [forked the old UK NHS repository](https://github.com/adamfowleruk/COVID-19-app-Android-BETA) on the same day they [started Herald](https://github.com/vmware/herald-for-android/commit/79b7a4bb74703f943fa57f56936a44febe1c62e0) (Aug 5). On that date, the two repositories showed (***XYZ similarity). Herald's developers have since improved it a little, but not addressed the fundamental weaknesses and design problems.--->
-
 ### What are these workarounds?
 
 These are described in detail in [Herald's documentation](https://vmware.github.io/herald/bluetooth/). They can be placed into three main categories:
@@ -61,7 +59,7 @@ This realistic scenario was [carefully tested by Richard Nelson using Herald-ena
 
  Furthermore, even while technically "working", there are many scenarios that still do not work as efficiently as desired for effective contact tracing. The DTA has published very encouraging tables of results:
 
-![](DTALoggingResults.png | width=50%)
+![](DTALoggingResults.png){:height="50%" width="50%"}
 
 (Source: [https://www.dta.gov.au/news/covidsafe-captures-close-contacts-new-herald-protocol](https://www.dta.gov.au/news/covidsafe-captures-close-contacts-new-herald-protocol) Last accessed 7th Dec.)
 
