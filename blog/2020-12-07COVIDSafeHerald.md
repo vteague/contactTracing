@@ -61,7 +61,7 @@ This realistic scenario was [carefully tested by Richard Nelson using Herald-ena
 
  Furthermore, even while technically "working", there are many scenarios that still do not work as efficiently as desired for effective contact tracing. The DTA has published very encouraging tables of results:
 
-![](DTALoggingResults.png)
+![](DTALoggingResults.png | width=50%)
 
 (Source: [https://www.dta.gov.au/news/covidsafe-captures-close-contacts-new-herald-protocol](https://www.dta.gov.au/news/covidsafe-captures-close-contacts-new-herald-protocol) Last accessed 7th Dec.)
 
@@ -108,7 +108,7 @@ If the consultants hired to advise the DTA on developing COVIDSafe had set out w
 
 Herald's claims of interoperability are also to be taken with great skepticism: anything is interoperable with other things that change to fit it, but Herald is not interoperable with any existing deployed system - their [International Interoperability Specification](https://vmware.github.io/herald/specs/payload-interop) has an ``initial very draft commit'' from December 4th, sketches substantial changes that would need to be made to other systems in order to interoperate with it, and does not show a sufficient understanding of how decentralised approaches work. A snapshot is copied below.
 
-![](HeraldInteroperability.png)
+![](HeraldInteroperability.png | width = 50%)
 
 
 ## Truthfulness, Christmas, and engagement with the technical community
