@@ -11,406 +11,123 @@ The complete list is:
 - [COVIDSafe's new payload encryption scheme (15 June)](https://github.com/vteague/contactTracing/blob/master/blog/2020-06-15COVIDSafesNewEncryptionScheme.md)
 - [Issues with COVIDSafe's new encryption scheme (19 June)](https://github.com/vteague/contactTracing/blob/master/blog/2020-06-19IssueswithCOVIDSafesNewEncryptionScheme.md)
 - [The current state of COVIDSafe (mid-June 2020) (22 June)](https://github.com/vteague/contactTracing/blob/master/blog/2020-06-22OutstandingPrivacyIssues.md)
-- [**COVIDSafe issues found by the tech community (7 July, updated 28 Oct) - this post**](https://github.com/vteague/contactTracing/blob/master/blog/2020-07-07IssueSummary.md)
+- [COVIDSafe issues found by the tech community (7 July, updated 24 July)](https://github.com/vteague/contactTracing/blob/master/blog/2020-07-07IssueSummary.md)
+- [Fools rush in where angels fear to tread - why Herald won't be ready by Christmas - this post (7 Dec)](https://github.com/vteague/contactTracing/blob/master/blog/2020-12-07COVIDSafeHerald.md)
 
 ---------------------------------------
 
+# Fools rush in where angels fear to tread - why Herald won't be ready by Christmas
+
 Jim Mussared: jim.mussared [at] gmail.com / [@jim_mussared](https://twitter.com/jim_mussared)   
-Vanessa Teague: [ThinkingCybersecurity Pty Ltd](https://www.thinkingcybersecurity.com) / [@VTeagueAus](https://twitter.com/vteagueaus)
+Vanessa Teague: [ThinkingCybersecurity Pty Ltd](https://www.thinkingcybersecurity.com) / [@VTeagueAus](https://twitter.com/vteagueaus)   
 
-Last updated: October 28th 2020, for Android v1.13 / iPhone v1.13. New fixes are noted below.
+-----------------------
 
-# COVIDSafe issues found by the tech community
+Harald Bluetooth Gormsson was a medieval king who brought Christianity to Denmark.  We mention this because we think the adoption of Herald Bluetooth into COVIDSafe is motivated more by its opportunities for Christmas-themed marketing than any evidence-based analysis of its merits.
 
-## Introduction
+Unfortunately, many of the DTA's claims about the reliability of Herald Bluetooth are not true - it is certainly not 100% reliable on locked iPhones, and it is not clear that it exchanges messages more reliably than the current version of COVIDSafe.  Furthermore, Herald Bluetooth re-introduces at least some of the privacy problems that had been identified and addressed by Australia's tech community through the past year.
 
-COVIDSafe was launched on April 26th, 2020. Several volunteers from the Australian tech community have spent considerable amounts of time analysing the code of the Android and iOS apps in order to help improve their contact tracing functionality and privacy.
+It is certainly helpful that DTA decided to put the code out before the app update this time, in order to seek feedback from the tech community.  **Our feedback is: do not ship the COVIDSafe Herald update - use the Google/Apple Exposure Notification framework instead.**
 
-Many issues have been found as well as recommendations for how to fix them, and some of these fixes have dramatically improved the effectiveness of the COVIDSafe app. In addition, several of these issues have been found and reported in contact tracing apps used in other countries.
+We understand that the Herald developers are nice people working hard to do their best.  They have corrected the cryptographic errors we found, and responded appropriately to our communications, much more quickly than the DTA.   This post is not a criticism of them, but of the DTA's decision to adopt their work without adequate testing, examination, or comparison with the existing solution.
 
-Most, but not all, of these issues have been fixed.  However, due to a quirk in the way that COVIDSafe works, it is not clear that users are actually receiving automatic updates to the app.  If you haven't checked you are running the most recent version, you should check manually and update now.
+## What is Herald?
 
-Oct 28th: The most important message for users is for Issue 25: **users need to open the app, check that its location permissions are OK (have a green tick) and, if not, grant location permission to the app (again).** Note that leaving the global location setting off also prevents scanning - see Issue 23.
+Herald is primarily a collection of tricks and workarounds for allowing two phones to exchange messages via Bluetooth.  Although the repository also includes some contact tracing protocols and methods for judging closeness, the DTA does not seem to have adopted them (probably wisely). It is therefore extremely misleading to say that COVIDSafe adopted the "Herald Protocol"  - COVIDSafe will be keeping the COVIDSafe protocol, but using Herald to deliver its messages.
 
-## Types of issues
+### Is it the same system that the UK rejected?
+![](blog/DTAHeraldTweetUKAbandoned.png)
 
-COVIDSafe has had a variety of different issues affecting both its privacy and its function.
+Herald is not the same code that the UK rejected in June, but it is a continuation of the BLE connection-based model that the UK, like almost every other country, abandoned in favour of the Google/Apple Exposure Notification framework.   Some of its techniques are very similar to those of the abandoned NHSX App, others are new, but none of them solve the underlying limitations of this approach.  The NHS concluded that these sorts of workarounds were not viable and rejected pursuing an approach based on them.
 
-### Privacy
+### What are these workarounds?
 
-Privacy issues result in the user's privacy being compromised, especially in a way that is not mentioned in the [privacy policy](https://www.health.gov.au/using-our-websites/privacy/privacy-policy-for-covidsafe-app). This may include being able to track a user's movements.
+These are described in detail in [Herald's documentation](https://vmware.github.io/herald/bluetooth/). They can be placed into three main categories:
 
-Many of the privacy issues involve the phone exposing any type of long-term identifier. This allows the user's movement to be detected if this same identifier can be recorded at different times and places. It also allows an attacker to detect if a target device is currently present at a given location.
+* Workarounds for specific documented limitations in the Bluetooth functionality available to apps. For example, the app cannot be easily detected on a background-mode iPhone, so Herald connects to all devices instead of just ones running COVIDSafe (with some exceptions). Another example is that phones are notified of nearby Bluetooth devices less frequently while in the background, so Herald maintains open connections and re-connects to previously-detected devices.
 
-### Security
+* Workarounds to ensure that the app stays active in the background. For example, on iPhone, Herald requests to be notified continuously of the GPS location (which it ignores), which means that the app is woken every time the phone is unlocked (even while the app is not active).  (Note that abuse of the location subsystem for non-location purposes is a clear violation of App Store terms and risks the DTA being unable to publish timely updates in future e.g. to provide critical fixes.)
 
-Security issues compromise the security of the device running COVIDSafe in ways beyond privacy. For example, being able to remote control the device.
+* Workarounds for older phones that do not implement all Bluetooth functionality. This includes mechanisms to relay using a nearby newer phone.
 
-### Functionality
+COVIDSafe already contained some of these workarounds, and some Herald workarounds appear not enabled in the COVIDSafe integration.  For example, COVIDSafe does not appear to have adopted the relay feature.
 
-These are issues that prevent COVIDSafe from being able to effectively perform contact tracing, such as the app not being able to detect other devices and record the contact.
+### Do these workarounds... work?
 
-### Usability
+Firstly, there are well-known scenarios that no workaround can solve, and these are apparent from the Herald documentation. For example, two locked iPhones that are brought into range of each other will not detect each other until one of them is unlocked.
+This realistic scenario was [carefully tested by Richard Nelson using Herald-enabled COVIDSafe](https://github.com/AU-COVIDSafe/mobile-ios/issues/29#issuecomment-736088913) - he found that no exchanges were recorded.
 
-Usability issues lead to user confusion or lack of confidence in the app. For example, user interface issues or minor functionality problems.
+ Furthermore, even while technically "working", there are many scenarios that still do not work as efficiently as desired for effective contact tracing. The DTA has published very encouraging tables of results:
 
-## List of issues
+![](blog/DTALoggingResults.png)
 
-### 1. Unique identifier in Bluetooth advertising payload
-Status: Fixed   
-Type: Privacy   
-Affects: Android   
-More info: [Issue report](https://docs.google.com/document/d/1u5a5ersKBH6eG362atALrzuXo3zuZ70qrGomWVEC27U/preview#heading=h.dwxxp83i1pl0)
+(Source: [https://www.dta.gov.au/news/covidsafe-captures-close-contacts-new-herald-protocol](https://www.dta.gov.au/news/covidsafe-captures-close-contacts-new-herald-protocol) Last accessed 7th Dec.)
 
-The Bluetooth Low Energy advertising payload is used to discover other devices running COVIDSafe. A three-byte identifier was incorrectly re-used in every payload, which uniquely re-identifies the same device over time.
+but they have provided no description of their testing methodology, so none of the claimed detection scores can be verified or even interpreted. What does a score of 95% mean exactly? Without clear experimental descriptions, the percentages are meaningless.
 
-### 2. Caching of tracing payload by remote MAC address
-Status: Fixed   
-Type: Privacy   
-Affects: Android   
-More info: [Issue report](https://docs.google.com/document/d/1u5a5ersKBH6eG362atALrzuXo3zuZ70qrGomWVEC27U/preview#heading=h.21w4dooci0sc)
 
-For no apparent reason, the app caches the tracing payload by the remote device's MAC address. This cache entry was never removed. A device with a fixed address could therefore always re-identify a target device by detecting the same payload.
+For example, it could mean that they tested 100 scenarios in which phones were placed in an epidemiologically-relevant proximity and duration with each other, and in 95 of those scenarios at least one encounter was logged. Or it could mean that in 95 of those scenarios, the server correctly detected an exposure from the logged encounters. What about false positives and false negatives?
 
-### 3. Phone model (e.g. "Samsung Galaxy G8") included in tracing payload
-Status: Fixed   
-Type: Privacy   
-Affects: Android & iOS   
-More info: [Issue report](https://docs.google.com/document/d/1u5a5ersKBH6eG362atALrzuXo3zuZ70qrGomWVEC27U/preview#heading=h.g4o2mg4wkn1n), [Research](https://www.scss.tcd.ie/Doug.Leith/pubs/bluetooth_rssi_study.pdf)
+We know from [previous DTA testing](https://www.theguardian.com/australia-news/2020/aug/18/covidsafe-overhaul-improves-app-but-it-still-works-only-27-of-the-time-on-some-apple-mobiles) that a score of 40% meant that in a single 15-minute test scenario, 6 encounters were logged. This is why there are test reports from the DTA that have scores like 107% and 120%. This is a completely meaningless measure of contact tracing effectiveness.
 
-The V1 protocol includes the phone model, and this is available to any device in Bluetooth range. The phone model is ostensibly used for calibration of the signal strength to distance calculation, however it has been shown that this calculation does not work, and is likely not being used for contact tracing. The V2 protocol now encrypts this field.
+### Can Bluetooth contact tracing work at all?
 
-### 4. 🚨 Phone name (e.g. "First Name's iPhone") accessible 🚨
-Status: **Not fixed**   
-Type: Privacy   
-Affects: Android & iOS   
-More info: [Blog post](https://github.com/vteague/contactTracing/blob/master/blog/2020-06-22OutstandingPrivacyIssues.md#unique-phone-names-eg-names-iphone), [Issue report](https://docs.google.com/document/d/1u5a5ersKBH6eG362atALrzuXo3zuZ70qrGomWVEC27U/preview#heading=h.21w4dooci0sc)
+The Google/Apple Exposure Notification (GAEN) framework is implemented at the operating system and is therefore immune to all the issues Herald tries so hard to work around. It works in all phone states, and requires reception of only a single 31-byte Bluetooth Low Energy frame to log an encounter, and phones broadcast these frames 4 times per second. Compare this to the connection-based Herald system which, like COVIDSafe's previous implementation, involves the coordinated bi-directional exchange of a huge number of individual frames to log a single encounter.
 
-Due to the way COVIDSafe uses Bluetooth, some standard Bluetooth services are enabled. One of these services makes the the device name accessible to remote devices. For example, this name would be shown when pairing with a car stereo.
+Other countries have successfully implemented this and are showing good results - for example, [the UK](https://github.com/nhsx/gaen_data-public), [Switzerland](https://www.bag.admin.ch/bag/en/home/krankheiten/ausbrueche-epidemien-pandemien/aktuelle-ausbrueche-epidemien/novel-cov/swisscovid-app-und-contact-tracing.html), [Ireland](https://covidtracker.gov.ie/) and many others. Additionally there is a [much higher level of transparency](https://down.dsg.cs.tcd.ie/tact/tek-counts/) about the operation of the GAEN system (though more would always help).
 
-At best, this name defaults to the model name, but in many cases the user will have customised it, allowing for re-identification of the device, and potentially identifying the owner's name.
+## Privacy
 
-An attempt at a fix was made, where the Android app will prompt the user to change their device name. However this UI is confusing, it only applies to new users, and only on Android.
+Bluetooth goes to great lengths to ensure that any unique identifier (such as the device address) has a very short lifetime so that the same device cannot be re-identified in multiple locations, allowing for tracking of a phone's location. Unfortunately, at launch it was discovered that COVIDSafe's implementation of this never updated, so the phone could be uniquely identified for the lifetime of the app. This error was corrected in May. See [Issue #1](https://github.com/vteague/contactTracing/blob/master/blog/2020-07-07IssueSummary.md).
 
-### 5. Undetectable, permanent long-term tracking of Android devices
-Status: Fixed   
-Type: Privacy   
-Affects: Android   
-More info: [CVE-2020-12856](https://github.com/alwentiu/COVIDSafe-CVE-2020-12856), [Summary thread](https://twitter.com/jim_mussared/status/1273849252985233408), [Video](https://www.youtube.com/watch?v=tlWqLVfdzG0)
+The proposed Herald integration uses a feature called "pseudo device addresses," allowing Herald to identify the same device for at least 15 minutes at a time. These pseudo addresses are placed in the Bluetooth advertising payload that the app uses to announce its presence to other phones.
 
-An attacker could trigger a silent pairing process with an Android phone running COVIDSafe. This is completely invisible to the user, no prompt is shown. Once pairing has been completed, the target phone can be re-identified even after COVIDSafe has been un-installed and the phone factory reset.
+However, [Herald's implementation of this feature](https://github.com/vmware/herald-for-android/issues/90) used an insecure random number generator, which meant that although the pseudo address changed as expected every 15 minutes, it did so in such a way that any future identifier could be predicted from a single previous one, completely nullifying any effect of it changing. [A working demonstration](https://gist.github.com/jimmo/3097f67151486ba880cd83ee78aee529) using real advertisements collected from the app was provided to the DTA.
 
-This was registered as CVE-2020-12858 which was assigned a ["Critical" 9.8 out of 10 severity rating](https://nvd.nist.gov/vuln/detail/CVE-2020-12856).
+### Has Herald-COVIDSafe had a thorough security audit?
 
-Note: A new workaround was applied in Version 1.13 which does not have a known expiry date.
+Elementary cryptographic errors like this indicate that there just isn't enough background knowledge among the people who designed it, nor quality assurance by the people who adopted it, to justify its use before much more extensive review, if at all.
 
-### 6. Ability to remote control an Android device running COVIDSafe
-Status: Fixed   
-Type: Security, Privacy   
-Affects: Android   
-More info: [CVE-2020-12856](https://github.com/alwentiu/COVIDSafe-CVE-2020-12856), [Summary thread](https://twitter.com/jim_mussared/status/1273849252985233408), [Video](https://www.youtube.com/watch?v=YZWUmQR5810)
+[Herald's correction](https://github.com/adamfowleruk/herald-for-android/commit/059fd73ec3b4ce551060a58fca68f39473a43530), though apparently functional, is far more complicated than it needs to be.
 
-Related to the previous silent pairing issue, once paired, an attacker can then invisibly "profile switch" and pretend to be a different Bluetooth device, e.g. a keyboard or headphones, allowing remote control of the phone.
+Because COVIDSafe had suffered a very similar problem in the past, any security audit of COVIDSafe's Herald integration should have checked that part of the code carefully.
 
-### 7. 🚨 Permanent long-term tracking of Android & iOS devices 🚨
-Status: **Partial mitigation**   
-Type: Privacy   
-Affects: Android & iOS   
-More info: [CVE-2020-12856](https://github.com/alwentiu/COVIDSafe-CVE-2020-12856), [Summary thread](https://twitter.com/jim_mussared/status/1273849252985233408)
+Furthermore, there was an unrelated bug in the Herald implementation that resulted in two bytes of the six-byte pseudo address always being (incorrectly) zero. This suggests that not only did nobody look at the code to generate the addresses, but nobody looked at the generated addresses themselves.
 
-A non-silent version of the above issue, where a prompt is shown that says "COVIDSafe would like to pair with your phone". If the user clicks "Pair", then the above two issues become possible.
+The [DTA's claim](https://www.dta.gov.au/news/covidsafe-captures-close-contacts-new-herald-protocol) that the Herald-enabled COVIDSafe app has received "Rigorous analysis and testing by cyber security experts" is not credible - [using insecure random number generators](https://owasp.org/www-community/vulnerabilities/Insecure_Randomness) for a privacy-critical feature is an obvious error that any competent security review should have caught.
 
-Both the Android and iPhone apps now include a prominent message that "COVIDSafe does not send pairing requests".
+## Organisation
 
-### 8. Undetectable, permanent long-term tracking of Android devices
-Status: Fixed in v1.0.49   
-Type: Privacy   
-Affects: Android   
-More info: Coming soon
+Herald has fixed (very promptly) the cryptographic error we identified, but [COVIDSafe's Herald-dependent version](https://github.com/AU-COVIDSafe/mobile-android/tree/herald) has not (as at 7 Dec). This is likely to be only the first of many similar issues, because rather than adopt Herald as a library (which would easily and automatically get the updates) it has been copy-pasted and extensively customised, so every bug-fix has to be manually ported, presumably also at taxpayers' expense.
 
-An attacker could trick COVIDSafe into connecting with the phone's identity address, rather than the random address normally used. This identity address then permanently identifies the phone, and like #5, allows for re-identifying the device even after COVIDSafe is uninstalled and the phone is factory reset.
+If the consultants hired to advise the DTA on developing COVIDSafe had set out with the specific purpose of maximising the total amount of public money spent on it, it is hard to imagine how they could have optimised that criterion more successfully.
 
-### 9. Remote code execution and ability to crash system Bluetooth service on Android
-Status: Fixed   
-Type: Security, Privacy   
-Affects: Android   
-More info: [CVE-2020-0022](https://insinuator.net/2020/04/cve-2020-0022-an-android-8-0-9-0-bluetooth-zero-click-rce-bluefrag/)
+### Interoperability
 
-Once the identity address of the target phone was known (via #5 or #8), any phone running Android 9.0 or lower is now vunerable to BlueFrag ([CVE-2020-0022](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-0022)), which allows remote code execution, remote memory access, and ability to crash the system Bluetooth service.
+Herald's claims of interoperability are also to be taken with great skepticism: anything is interoperable with other things that change to fit it, but Herald is not interoperable with any existing deployed system - their [International Interoperability Specification](https://vmware.github.io/herald/specs/payload-interop) has an ``initial very draft commit'' from December 4th, sketches substantial changes that would need to be made to other systems in order to interoperate with it, and does not show a sufficient understanding of how decentralised approaches work. A snapshot is copied below.
 
-### 10. Remote crash of iPhone app
-Status: Fixed   
-Type: Security, Functionality   
-Affects: iOS   
-More info: [Blog post](https://medium.com/@wabz/covidsafe-ios-vulnerability-cve-2020-12717-30dc003f9708), [Video](https://photos.app.goo.gl/btmoD1DfrMGKWwpR8)
+![](blog/HeraldInteroperability.png)
 
-An attacker could create a beacon that would remotely crash the COVIDSafe app on any nearby iPhone. The beacon would transmit a malformed advertising payload that the app would fail to handle.
 
-### 11. iPhone app only functions in the foreground
-Status: Fixed   
-Type: Functionality   
-Affects: iOS   
-More info: [Blog post (part 1)](https://medium.com/@wabz/the-broken-covidsafe-ios-application-c652d0a462c4), [Blog post (part 2)](https://medium.com/@wabz/the-unbroken-ios-covidsafe-application-dea520af3694)
+## Truthfulness, Christmas, and engagement with the technical community
 
-Despite claims to the contrary that this had been fixed relative to the Singapore app, the iPhone app could not function in the scanning role while the app was not in the foreground. It would schedule a timer to stop scanning, and then never get an opportunity to start scanning again. This was fixed by no longer stopping the scan.
+We have raised this feedback (and more) to the DTA via private channels and via the public bug tracker in the following issues: [Herald integration with COVIDSafe](https://github.com/AU-COVIDSafe/mobile-android/issues/30) and [Distance estimation (and Herald changes)](https://github.com/AU-COVIDSafe/mobile-android/issues/31)
 
-### 12. iPhone app cannot function while locked
-Status: Fixed   
-Type: Functionality   
-Affects: iOS   
-More info: [Issue report](https://docs.google.com/document/d/1dsSxC48cJ91X17PoOybpun1U163YDxxL0CDk3kmAHvY/preview), [Blog post](https://github.com/vteague/contactTracing/blob/master/blog/2020-06-19IssueswithCOVIDSafesNewEncryptionScheme.md#locked-iphones-cannot-receive-new-tempids)
+Much about COVIDSafe remains hidden, including the server code and the details of the experiments on which the DTA's reliability assessments are based.  Not all the authors of this post accept the terms and conditions under which the app code is made available.  If we had freer access to more information, we could help find and fix more problems.
 
-The app downloads a new tracing ID every two hours, but in order to do so it needs to access the authentication token in the device keychain which it uses to talk to the Amazon server. When the token was first created, it was not stored in a way that allowed access while the device was locked.
+Nevertheless, this is the first time that the DTA has had the wisdom to share the source code with the open source community long before pushing the app update.  This is fortunate, because otherwise they might not have realised they were (re-)introducing substantial privacy problems for very little benefit.  It's a good thing for ordinary Australians that this better-than-usual transparency has allowed us to identify good reasons Herald is not ready to be pushed to Australian users by Christmas.
 
-### 13. iPhone app prevents new connections after 100 exchanges
-Status: Fixed in v1.9   
-Type: Functionality   
-Affects: iOS   
-More info: [GitHub issue](https://github.com/AU-COVIDSafe/mobile-ios/issues/9)
-
-Once a remote device is found during a scan, the app will then attempt to connect and record an encounter with it every 15 seconds. This allows the duration of the encounter to be inferred, even though the background-mode scanning will not find the same device multiple times.
-
-These connection attempts do not time out, and so for every device that goes out of range the phone will remain in an "attempting to connect" state to that device. In addition, phones change their address every few minutes, which means that any nearby phone will appear to go out of range every few minutes.
-
-After about 100 pending connections, the phone becomes unable to connect to new devices. This prevents further encounters from being recorded, but also prevents other apps from initiating connections to other BLE devices (e.g. smart watches, diabetes continuous glucose monitoring, etc).
-
-An fix was attempted in v1.8 but the issue persisted. It was fixed completely in v1.9.
-
-### 14. iPhone app can't exchange messages as expected with other iPhones
-Status: Fixed in v1.8.  
-Type: Functionality   
-Affects: iOS   
-More info: [Earlier blog post](https://github.com/vteague/contactTracing/blob/master/blog/2020-06-19IssueswithCOVIDSafesNewEncryptionScheme.md#iPhoneToiPhoneBug), [GitHub issue on errors in the attempted fix](https://github.com/AU-COVIDSafe/mobile-ios/issues/11)
-
-When the V2 payload was introduced (see #3 above), the iPhone implementation incorrectly truncated the new messages, resulting in the encounters being silently ignored and not logged to the database. Fortunately due to redundancy in the design, there is a second mechanism where the payload is exchanged, but this bug overall decreases the reliability of the contact tracing functionality.
-
-A fix was attempted, however it contains a new bug, which means that while the encounters are now logged, they are actually corrupted, which means they will not be able to be decrypted by the server.
-
-This was fixed in v1.8 for iOS.
-
-### 15. Android app can't discover background-mode iPhones
-Status: Fixed   
-Type: Functionality   
-Affects: Android   
-More info: [Issue report](https://docs.google.com/document/d/1u5a5ersKBH6eG362atALrzuXo3zuZ70qrGomWVEC27U/preview#heading=h.1ch70d1huf4o), [Technical details](http://www.davidgyoungtech.com/2020/05/07/hacking-the-overflow-area)
-
-Whilst operating in the background, the iOS app will send a differently-formatted BLE advertising payload. The Android app only understood the foreground-mode one, and so would not detect background-mode iPhones. In conjunction with iPhones not being able to operate in the scanning role in the background (#11), this made it almost impossible for any sort of encounter to be detected with or by an iPhone in the background.
-
-This was fixed, however the fix doesn't handle a case where multiple apps are running on the iPhone that each advertise a different BLE service. However this is likely a very rare scenario.
-
-### 16. App logo stops spinning
-Status: Fixed   
-Type: Usability   
-Affects: Android   
-More info: [GitHub PR](https://github.com/AU-COVIDSafe/mobile-android/pull/5)
-
-The logo animation did not resume after a user opens and then dismisses the "share" screen.
-
-### 17. Tracing ID expiry is too long
-Status: Fixed   
-Type: Privacy   
-Affects: Android & iOS
-More info: [Blog post](https://github.com/vteague/contactTracing/blob/master/blog/2020-04-27TracingTheChallenges.md)
-
-The COVIDSafe app uses a two-hour expiry for the tracing ID. This is unnecessarily long, and goes against the recommendations from the Singapore team. This allowed the device to be re-identified for a long enough window to, for example, track a user's movement around a shopping centre.
-
-This has been mitigated in the V2 protocol by adding an extra layer of encryption. The tracing ID still lasts for two hours, but the encryption key changes every 7.5 minutes.
-
-### 18. App writes corrupted payloads to encounter log
-Status: Fixed   
-Type: Functionality   
-Affects: Android   
-More info: [Blog post](https://github.com/vteague/contactTracing/blob/master/blog/2020-06-19IssueswithCOVIDSafesNewEncryptionScheme.md#critical-concurrency-bug-in-encryption-for-covidsafe-on-android)
-
-The implementation of the V2 protocol had a concurrency bug, where simultaneous encounters would result in corrupted entries being written to the log.  It also crashed the app.
-
-### 19. Plaintext counter leaks information
-Status: Fixed   
-Type: Privacy   
-Affects: Android and iOS   
-More info: [Blog post](https://github.com/vteague/contactTracing#implications-of-a-plaintext-counter)
-
-The implementation of the V2 protocol used a counter which inadvertently leaked information about the number of encounters that the device has recorded in the last 7.5 minutes. This was corrected by substituting a small random number instead of a counter.  This is not a standard use of the cryptographic primitives involved.
-
-### 20. Confusing message tells users they have tested positive to COVID-19
-Status: Fixed   
-Type: Usability   
-Affects: Android   
-More info: [COVIDSafe.watch](https://covidsafe.watch/issue-register/you-have-covid-text-caused-public-panic), [9 News](https://www.9news.com.au/national/covidsafe-app-melbourne-woman-feared-coronavirus-after-confusing-message/e9146501-6bbd-4509-b89a-406b2b98ed2a)
-
-This was discovered by the community by inspecting the app's resources was reported as a potential issue very soon after launch. Then within a few days, there were news reports of people being confused by this.
-
-### 21. 🚨 Identifier linking allowing re-identification of devices 🚨
-Status: **Not fixed**   
-Type: Privacy   
-Affects: Android & iOS   
-More info: [Issue report](https://docs.google.com/document/d/1u5a5ersKBH6eG362atALrzuXo3zuZ70qrGomWVEC27U/preview#heading=h.4wtj9wjrhx8b), [Blog post](https://github.com/vteague/contactTracing/blob/master/blog/2020-06-22OutstandingPrivacyIssues.md#background-on-mac-address-and-tempid-based-phone-tracking)
-
-Any time where more than one identifier is accessible, even if they change frequently, they must all change at the same time otherwise they can be linked together. There are several known identifiers in COVIDSafe that change at different intervals:
-
-* BLE MAC address
-* BLE advertisting payload
-* Tracing ID
-* Phone model
-* Phone name
-* Encryption counter
-
-Avoiding this issues is explicitly called out in the design of the Apple/Google Exposure Notification API.
-
-### 22. App fails to download new tracing IDs
-Type: Functionality, Privacy   
-Status: Fixed   
-Affects: Android & iOS   
-More info: [Issue report (iOS)](https://docs.google.com/document/d/1iJGShYSOmo1ngKy8V-cW2jmwsvP1hLt7f54HZFcQSVw/preview?usp=sharing)
-
-There were numerous issues discovered by the community in the handling of downloading and expiring tracing IDs. This resulted in scenarios where the app would regularly use the same tracing ID for longer than the two-hour expiry time.
-
-This created a privacy issue, allowing for tracking and re-identification of devices, but also a functionality issue, as expired tracing IDs will not be counted as valid encounters.
-
-### 23. The Android app silently fails to function if "Location" is disabled
-Status: Fixed in v1.0.39 (pending UI changes)   
-Type: Functionality, Privacy   
-Affects: Android   
-More info: [GitHub issue](https://github.com/AU-COVIDSafe/mobile-android/issues/6)
-
-Privacy-conscious users may disable the "Location" global setting on Android. As Bluetooth scanning allows an app to detect the presence of positioning beacons, having location disabled prevents an app from being able to scan for BLE devices.
-
-COVIDSafe fails to detect this condition and will silently fail to scan for other devices.  This prevents two Android phones that both have "Location" off from exchanging TempIDs with each other or with any phone affected by Issue 25. However, it should not prevent an Android phone with "Location" off from successfully exchanging TempIDs both ways in the peripheral role, with another phone that is either an iPhone or an Android phone with "Location" on (and not affected by Issue 25). 
-
-The core issue was fixed in v1.0.39 however there are some [UI problems that need to be addressed when "Location" is off](https://github.com/AU-COVIDSafe/mobile-android/issues/13).
-The main screen tells users that it is not active, when it is active and working in most circumstances, as described above.
-
-###  24. The app didn't auto-update 
-Status: Fix in-progress (starting with v1.8 & v1.0.49)   
-Type: Functionality, Privacy, Usability, Security   
-Affects: Android   
-More info: [Blog post](https://github.com/vteague/contactTracing/blob/master/blog/2020-06-22OutstandingPrivacyIssues.md#the-app-does-not-automatically-update)
-
-The Android app was unable to automatically update to new versions published in the play store.
-There were also reports that a similar issue is affecting the iPhone app.
-
-v1.0.39 for Android and v1.8 for iOS add support for push notifications (using Firebase Cloud Messaging and Apple Notifications respectively). v1.8 for iOS and v1.0.48 for Android then implemented a "need to update" notification. 
-
-**We are not certain of the current status of this problem. Users should probably still check manually that they have received the most recent update.**
-
-
-### 25. 🚨 Android app loses location permission after 1.0.39 update 🚨
-Status: **Fixed, then un-fixed again for v1.13**   
-Type: Functionality, Usability   
-Affects: Android   
-More info: [GitHub Issue](https://github.com/AU-COVIDSafe/mobile-android/issues/14)
-
-The v1.0.39 release changed from using Android's "fine" location permission, to "coarse". This is a good change -- the app never needed "fine" location, so "coarse" is what it should be using. However, due to the way the change was made, after the update the app will likely have no location permission at all until the user manually opens the app to grant the new "coarse" permission.
-
-The v1.13 release changed back to "fine" location permission.  This means **users need to repeat the process: Open the app, check that its location permissions are OK (have a green tick) and, if not, grant location permission to the app (again).** (Note that leaving the global location setting off also prevents scanning - see Issue 23).
-
-There is a notification shown, however it's not a new notification, rather it just updates the text of the existing "COVIDSafe is running" notification, so there is no pop up. Additionally, the icon (which is the most obvious part) does not change. This means that users may not notice that the app is now unable to scan for other devices running COVIDSafe.
-
-*Although the app doesn't actually use location, this permission (either "coarse" or "fine") is required to enable BLE scanning.*
-
-It's confusing to users that the app suddenly seems to require location permission, and might make it seem like the new version is now introducing additional location-based functionality (which it isn't).
-
-
-### 26. 🚨 Can't click "continue" in Android registration screen  🚨
-Status: **Not fixed**   
-Type: Functionality, Usability   
-Affects: Android   
-More info: [GitHub Issue](https://github.com/AU-COVIDSafe/mobile-android/issues/17)
-
-A user interface issue prevents the "Continue" and "Get Pin" buttons from being pressed during the registration screen. It's not intuitive how to work around this issue.
-
-
-### 27. 🚨 App silently doesn't function on some Android 5.1/6.0/7.0 devices  🚨
-Status: **Not fixed**   
-Type: Functionality   
-Affects: Android   
-More info: [GitHub Issue](https://github.com/AU-COVIDSafe/mobile-android/issues/18)
-
-Although the COVIDSafe app supports phones running versions of Android all the way back to Android 5.1, some phones running 5.1, 6.0, and 7.0 do not have the Bluetooth functionality required to run COVIDSafe. The app does not detect this and appears like everything is working, when app cannot actually be detected by other phones.
-
-
-### 28. 🚨 Android app can corrupt its registration token leading to crash on startup  🚨
-Status: **Workaround - status unclear**   
-Type: Functionality, Usability  
-Affects: Android   
-More info: [GitHub Issue](https://github.com/AU-COVIDSafe/mobile-android/issues/23)
-
-A Twitter user [noticed in early July](https://twitter.com/_the_culture/status/1281505842026577920) that the COVIDSafe app was crashing on startup. This was eventually noticed by several more people and reported privately to the DTA, but with no response.
-
-If affected by this issue, the user must uninstall and reinstall the app to recover (or manually remove all app data). Unfortunately this results in having to re-register and loses all encounter history. However, the more likely outcome is that people will just stop using the app.
-
-The root cause and suggested fix is complicated, see the GitHub issue linked above for details. In summary this is in large part due to COVIDSafe using an unstable version of an Android library, copied into the COVIDSafe code rather than used as a library. At the very least this dependency should have been kept up to date and moved to the released version, which would have avoided this being an unrecoverable error.
-
-We are not sure of the current status of this problem.  There seems to be an attempted fix, but we are not sure whether it solves the underlying problem or merely prevents it causing a crash.
-
-## Recommendations
-
-### Apple/Google Exposure Notification API
-
-The [Google/Apple Exposure Notification API](https://www.apple.com/covid19/contacttracing) uses Bluetooth in a very different way. If COVIDSafe had been designed to use the Exposure Notification API, it would very likely have prevented all of the functionality, privacy and security issues described above.
-
-The Apple/Google Exposure Notification API is not perfect, and does have its own privacy implications.  For example, Android requires Google location services in order to enable the API, an unnecessary invasion of users' location privacy (though one that is irrelevant to users who already turn Google location on).  Compared with a centralised system like COVIDSafe, it also gives users more information about when they interacted with those who have tested positive, potentially increasing the likelihood that the source of infection could be identified and tracked during the time they were assumed infectious.  However, the Google/Apple API has two overwhelming advantages: better function, and better privacy from government.  It is important to understand that this is not because the database of close contacts is handed to the tech companies: the Google/Apple API is designed not to build that database.
-
-Human contact tracers can be involved in an app based on the Google/Apple API.  The [Irish app](https://www.irishtimes.com/business/technology/what-is-covid-tracker-ireland-1.4298128) allows users to opt in to giving their phone number so they can be contacted by a person if they are identified as having been exposed.  The difference between this and COVIDSafe is that the authority does not receive each infected person's list of face-to-face contacts, just a notification that a particular person has been exposed.
-
-Although there are pros and cons, there does not seem to be any reasonable analysis or understanding in government of why a centralised model has been chosen. Consider for example Minister Robert's [recent attempt to explain](https://minister.servicesaustralia.gov.au/transcripts/2020-07-07-q-and-speech-national-press-club):
-> *there's an opportunity I think here for the big tech companies to lock step in with sovereign governments and assist them with their sovereign approach to doing tracing. Remember, digital tracing simply enhances a manual tracing process. The big tech companies with their exposure notification framework are saying that digital tracing unto itself is enough. The global experience shows quite clearly it is not enough.*
-
-The world is headed for a large and not very well-controlled empirical test, so we will soon see evidence that allows us to compare the countries with decentralised apps based on the Apple/Google API (such as Italy, Germany, Switzerland, Ireland and the UK) against those that stick with a centralised model.  The Australian authorities are choosing to emphasise centralised data gathering, knowing that this carries a cost for basic successful functioning (for all the reasons described above).  The global experience will soon show whether this was wise.
-
-
-### The server code
-
-The source code for the the COVIDSafe server code has not been released for public inspection. For more information, please see [The missing server code, and why it matters](https://github.com/vteague/contactTracing/blob/master/blog/2020-05-14TheMissingServerCode.md)
-
-### Engagement numbers
-
-The update of COVIDSafe has been communicated entirely in terms of "number of downloads". This is a very misleading figure, as it coveys no information about how many people are actually using the app.
-
-The industry standard is to report "active users" over some time period. i.e. "1-day active users" are the number of unique users who are actively using the app in a 24-hour period.
-
-As the app downloads a new tracing ID from the AWS server every hour, using the user's unique authentication token, the server is trivially able to generate this information.
-
-### Formal security reporting process and bug bounty
-
-At launch there was no process for the community to report serious issues, nor has there been any management of issue disclosure.
-
-The DTA should set up a formal process for working with security researchers for this and all future projects. A bug bounty program would be an excellent way to implement this.
-
-The legislation created to support the COVIDSafe app, known as the Privacy Amendment (Public Health Contact Information) Act, also offers no protections to security researchers. Furthermore, the source code has been released under terms that are not conducive to community engagement.
-
-### Auto-updates
-
-The DTA should add code to the app to report the current version to the server when downloading the tracing ID (every hour), allowing the server to respond with a message telling the app that it needs to be updated.
-
-In addition, this would provide better metrics to the DTA on whether users are receiving updates.
-
-Update: As of 1.0.49 for Android and v1.9 for iOS (early August):
-* Both iOS and Android apps support a push notification to tell the user to update.
-* The tracing ID is now downloaded daily instead of hourly.
-* The tracing ID request now includes a flag indicating that the app is at least v1.0.49/v1.9 (but does not include the actual version number).
-
-## Acknowledgments
-
-We'd like to thank the large and active community of Australian techies who have examined, discussed, and tried to correct the code. In particular the following people (in no particular order) were involved in discovering the issues described above:
-
-* Alwen Tiu
-* Chris Culnane
-* Eleanor McMurtry
-* Ben Frengley
-* Geoffrey Huntley
-* Hubert Seiwert
-* Jim Mussared
-* John Evershed
-* Manabu Nakazawa
-* Richard Nelson
-* Robert Merkel
-* Vanessa Teague
-* Yaakov Smith
+-----------------------------------------------------------
 
 ### Followup and reuse
 
 Comments, edits, suggestions and pull requests are welcome.
 
 You are welcome to quote or reprint this article as long as you acknowledge the original source.  Permanent link:
-[https://github.com/vteague/contactTracing/blob/master/blog/2020-07-07IssueSummary.md](https://github.com/vteague/contactTracing/blob/master/blog/2020-07-07IssueSummary.md).
+[https://github.com/vteague/contactTracing/blob/master/blog/2020-12-07COVIDSafeHerald.md](https://github.com/vteague/contactTracing/blob/master/blog/2020-12-07COVIDSafeHerald.md).
+
+
+
+
+
+
