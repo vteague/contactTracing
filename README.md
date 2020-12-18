@@ -13,13 +13,15 @@ The complete list is:
 - [The current state of COVIDSafe (mid-June 2020) (22 June)](https://github.com/vteague/contactTracing/blob/master/blog/2020-06-22OutstandingPrivacyIssues.md) by the same authors.
 - [COVIDSafe issues found by the tech community (7 July, updated 28 Oct)](https://github.com/vteague/contactTracing/blob/master/blog/2020-07-07IssueSummary.md) by Jim Mussared and me.
 - [Fools rush in where angels fear to tread - why Herald won't be ready by Christmas](https://github.com/vteague/contactTracing/blob/master/blog/2020-12-07COVIDSafeHerald.md) by Jim Mussared and me.
-- [**Why GAEN Exposure Information should be shuffled relative to Diagnosis Keys - this post (16 Dec)**](https://github.com/vteague/contactTracing/blob/master/blog/2020-12-16TheImportanceOfShufflingInGAEN.md)
+- [**Why GAEN Exposure Information should be shuffled relative to Diagnosis Keys - this post (16 Dec, updated 19 Dec)**](https://github.com/vteague/contactTracing/blob/master/blog/2020-12-16TheImportanceOfShufflingInGAEN.md)
 ---------------------------------------
 
 # Why GAEN Exposure Information should be shuffled relative to Diagnosis Keys
 
 Vanessa Teague: [Thinking Cybersecurity Pty Ltd](https://www.thinkingcybersecurity.com)   / [@VTeagueAus](https://twitter.com/vteagueaus)   
 and the [Australian National University](https://researchers.anu.edu.au/researchers/teague-v)   
+
+Update 19 Dec: Apple shuffling information.
 
 ## Summary
 The Google-Apple Exposure Notification (GAEN) system is designed for decentralised notifications of possible exposure to infection.  Each user's device regularly downloads the Diagnosis Keys of people who have tested positive for an infection, then compares this information with its own log of contacts.  This produces a list of exposure events, called ExposureInformation, which gives a date of exposure (without the exact time), a duration (capped at 30 mins) and some other details.  From this, the device estimates its user's risk of infection and makes a decision about whether to notify them.
@@ -29,9 +31,10 @@ estimate - from those users who have opted in.
 
 This blog post describes an attack that could have allowed a malicious authority to infer edges in the social graph through the Google-Apple Exposure Notification API, in very specific circumstances described below.  The main problem was that the client did not shuffle its detailed list of Exposure Information, which caused a problem if the person opted in to uploading it.  
 
-I am confident that Google's implementation is no longer vulnerable - on August 26, three weeks after I notified them, they published [a file that clearly implements the necessary shuffle](https://github.com/google/exposure-notifications-internals/blob/main/exposurenotification/src/main/java/com/google/samples/exposurenotification/matching/ExposureWindowUtils.java#L66) and said that the relevant fix had been applied in June (before I notified them), which is entirely credible.  Apple simply responded that their implementation was "working as intended" and did not answer when I asked whether it is intended to shuffle or intended not to shuffle.  I would be grateful for any empirical information on whether, or when, Apple's implementation commenced shuffling.
+I am confident that Google's implementation is no longer vulnerable - on August 26, three weeks after I notified them, they published [a file that clearly implements the necessary shuffle](https://github.com/google/exposure-notifications-internals/blob/main/exposurenotification/src/main/java/com/google/samples/exposurenotification/matching/ExposureWindowUtils.java#L66) and said that the relevant fix had been applied in June (before I notified them), which is entirely credible.  Apple has also confirmed by email 
+that their implementation shuffles in iOS versions 14 and later.
 
-Although probably no longer an active issue for GAEN, I hope this potential pitfall has some explanatory value and  may help countries such as New Zealand refine their own implementation for residents who don't have GAEN-enabled devices.
+Although no longer an active issue for GAEN, I hope this potential pitfall has some explanatory value and  may help countries such as New Zealand refine their own implementation for residents who don't have GAEN-enabled devices.
 
 Hiding social connections from a central authority is one of the main goals of the decentralised approach.
 
@@ -95,9 +98,10 @@ Some information obviously still leaks even if the array order is shuffled.  In 
 This issue was disclosed to both Apple and Google on August 3rd, with a clear statement that I wasn't sure whether the shuffle was present in non-public code.  Google responded promptly, published the correction on August 26, and later said that it had been corrected in June, before I notified them.
 
 Apple replied that it was "working as intended," did not respond to my request to clarify whether it was intended to shuffle, and did not update their public code snippets to include a shuffle.
-It is possible that Apple's implementation does shuffle, and also possible that it has avoided this problem by prohibiting apps from uploading ExposureInformation, though I could not find any such prohibition.
+However, they have now confirmed by email that their implementation does shuffle, from versions iOS 14 and later.   
 
-I appreciate that some code for both Apple and Google's implementations has been made available.  However, there is a huge difference between genuinely openly available code and the "snippets" actually available when I was trying to understand this issue.  [Apple's snippets](https://developer.apple.com/exposure-notification/) do not include a shuffle, but are not comprehensive enough to allow anyone to assess whether a shuffle is present in the non-public fragments.  It also has not changed since before I disclosed this issue on August 3rd, though I assume the implementation has continued developing.  (Zip SHA256sum: fda4d865d34d3ab45272b5d6545ee3288bfc32453e350ad4f91647e934b1d03a).
+
+I appreciate that some code for both Apple and Google's implementations has been made available.  However, there is a huge difference between genuinely openly available code and the "snippets" actually available when I was trying to understand this issue.  [Apple's snippets](https://developer.apple.com/exposure-notification/) do not include a shuffle, but are not comprehensive enough to allow anyone to assess whether a shuffle is present in the non-public fragments.  It also has not changed since before I disclosed this issue on August 3rd, though the implementation has continued developing.  (Zip SHA256sum: fda4d865d34d3ab45272b5d6545ee3288bfc32453e350ad4f91647e934b1d03a).
 
 [Google's repository](https://github.com/google/exposure-notifications-internals/) is far more accessible, and includes an update from September 30 entitled "Add all remaining classes of the EN SDK." Though I have not checked that it is indeed complete, this gives everyone a much better opportunity to examine and improve the code.
 
@@ -105,7 +109,7 @@ I appreciate that some code for both Apple and Google's implementations has been
 ## Summary and Conclusion
 This attack allows a malicious server to confidently infer some edges of the social graph.  Although it happens only in restricted settings, and only for individuals who have tested positive and opted in to extra data upload, the scenario is quite plausible. 
 
-A simple and effective mitigation is to shuffle ExposureInformation before returning it to the app.  Google certainly now does this, and says (credibly) that they did so from June (before I notified them).  I would value any information on whether Apple also does so.
+A simple and effective mitigation is to shuffle ExposureInformation before returning it to the app, which both implementations now do. Apple informs me they shuffle from iOS 14 onwards; Google says that they did so from June (before I notified them).  
 
 I hope this information is valuable to anyone implementing their own Exposure Notification API.
 
