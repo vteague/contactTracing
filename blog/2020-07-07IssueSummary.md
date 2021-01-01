@@ -130,7 +130,7 @@ Both the Android and iPhone apps now include a prominent message that "COVIDSafe
 Status: Fixed in v1.0.49   
 Type: Privacy   
 Affects: Android   
-More info: Coming soon
+More info: [CVE-2020-14292. Identity address leakage through bluetooth transport](https://github.com/alwentiu/CVE-2020-14292)
 
 An attacker could trick COVIDSafe into connecting with the phone's identity address, rather than the random address normally used. This identity address then permanently identifies the phone, and like #5, allows for re-identifying the device even after COVIDSafe is uninstalled and the phone is factory reset.
 
@@ -364,7 +364,7 @@ This is almost identical to issue #1 above, and was introduced in the migration 
 
 This was briefly [fixed upstream in Herald](https://github.com/vmware/herald-for-android/pull/91), and then the fix was [replaced](https://github.com/vmware/herald-for-android/issues/81) with a new use of an insecure random number generator, and this code is still broken upstream.
 
-COVIDSafe have applied a temporary fix to use Android's `SecureRandom`. There are [suggestions from the Herald team](https://github.com/vmware/herald-for-android/issues/109#issuecomment-744508712) that maybe this will lead to the app stopping working on some phones.
+COVIDSafe have applied a temporary fix to use Android's `SecureRandom`, and fortunately this was included in version 2.0. There are [suggestions from the Herald team](https://github.com/vmware/herald-for-android/issues/109#issuecomment-744508712) that maybe this will lead to the app stopping working on some phones.
 
 
 ### 30. iPhone app prevents Bluetooth from making new connections   
@@ -373,11 +373,11 @@ Type: Functionality
 Affects: iOS   
 More info: [GitHub issue](https://github.com/AU-COVIDSafe/mobile-ios/issues/38)   
 
-This is identical to #13 above, and was re-introduced in the Herald migration, due to the way that Herald manages connection to iPhones.
+This is identical to #13 above, and was re-introduced in the Herald migration (version 2.0), due to the way that Herald manages connection to iPhones.
 
 This prevented the app from functioning at all on iPhones, and also prevented other Bluetooth functionality from working (such as wireless headphones, medical devices, remote controls).
 
-An emergency patch was released on Dec 23.
+An emergency patch (version 2.1.1) was released on Dec 23.
 
 
 ### 31. 🚨 Android app registers multiple Bluetooth services 🚨
@@ -390,7 +390,7 @@ Since the Herald migration, the Android app uses the Bluetooth interface in a co
 
 The effect is that the phone will appear to look like multiple phones to other nearby phones, which leads to more crowding issues (lower detection efficiency) and higher battery drain. Additionally, after registering the service too many times, the app stops functioning.
 
-A fix was attempted before launch after this issue was raised, but it did not solve the issue.
+After this issue was raised, an attempted fix was included in version 2.0, but it did not solve the issue.
 
 
 ### 32. 🚨 COVIDSafe is a significant battery drain 🚨
@@ -412,7 +412,7 @@ Type: Functionality, Usability
 Affects: iOS  
 More info:   GitHub issues: [32](https://github.com/AU-COVIDSafe/mobile-ios/issues/32), [38](https://github.com/AU-COVIDSafe/mobile-ios/issues/38), [34](https://github.com/AU-COVIDSafe/mobile-ios/issues/34), [30](https://github.com/AU-COVIDSafe/mobile-ios/issues/30), [29](https://github.com/AU-COVIDSafe/mobile-ios/issues/29#issuecomment-736531034)   
 
-The Herald update now requires that the iOS app is granted permission for location access, and iOS will now periodically tell the user how many times COVIDSafe "access the location in the background".
+The Herald update (version 2.0) now requires that the iOS app is granted permission for location access, and iOS will now periodically tell the user how many times COVIDSafe "access the location in the background".
 
 The app doesn't actually use location data, rather the location access is used to "wake up" the app. However there is very little reason for a user to understand this distinction, and a user cannot easily verify this for themselves.
 
@@ -430,7 +430,27 @@ Herald only exchanges tracing data in one direction for a given connection (with
 This reduces the efficiency of encounter recording, especially in crowded environments.
 
 
-### 35. 🚨 The app cannot measure distance (e.g. 1.5 metres) 🚨
+### 35. 🚨 Remote denial-of-service attack 🚨
+Status: Not fixed   
+Type: Security, Functionality   
+Affects: Android & iOS   
+More info: _coming soon_
+
+Similar to #10 above, two different remote crash vulnerabilities have been identified, affecting both the iOS and Android apps. These allow an attacker to disable the app on any phone in Bluetooth range.
+
+These bugs were introduced during the Herald migration (version 2.0), and are in the integration code, not in Herald itself. They were reported to the DTA on 21 Dec 2020 and are still unfixed. A fix was not attempted in the 2.1.1 update for issue #30 above.
+
+
+### 36. 🚨 Undetectable, permanent long-term tracking of older Samsung Android devices 🚨
+Status: Not fixed   
+Type: Security, Privacy   
+Affects: Samsung phones running Android 7.1.1 and earlier   
+More info: [CVE-2020-35693: A silent pairing pairing vulnerability affecting some Samsung devices](https://github.com/alwentiu/contact-tracing-research/blob/main/samsung.pdf)   
+
+Similar to #7 and #8 above, a vulnerability in Samsung's Bluetooth stack allows an attacker to silently pair with a phone running COVIDSafe. Samsung have acknowledged the issue but they do not plan to issue a patch. However, unlike #7 and #8, there is no workaround possible for COVIDSafe. The DTA have not acknowledged the issue after multiple reports.
+
+
+### 37. 🚨 COVIDSafe cannot measure distance (e.g. 1.5 metre threshold) 🚨
 Status: Not fixed   
 Type: Functionality, Privacy   
 Affects: iOS & Android   
